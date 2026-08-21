@@ -1,0 +1,8 @@
+{
+  "name": "book-gap-finder",
+  "version": "0.1.0",
+  "description": "Researches the self-help/non-fiction book market across YouTube and 12 bookstore/review sites to find underserved pain points and market gaps, then proposes book concepts and emails the report on a schedule.",
+  "author": {
+    "name": "felix"
+  }
+}

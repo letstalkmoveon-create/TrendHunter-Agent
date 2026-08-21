@@ -1,0 +1,134 @@
+{
+  "niche": "cold plunge tubs",
+  "generated_at": "2026-08-20T19:45:00Z",
+  "summary": "TikTok is where this niche is actually winning right now: DIY/budget builds and personal-story content dramatically outperform branded product ads on the same platform. Reddit couldn't be checked this run (rate-limited, no Firecrawl fallback key set) so no pain point here is cross-platform validated yet. YouTube's top search results for this niche are almost entirely 'Top 5 Best Cold Plunge Tubs' affiliate-roundup videos with near-zero engagement (several under 10 views) — that format is saturated and worth avoiding rather than copying.",
+  "hooks": [
+    {
+      "text": "DIY making an ice bath out of an ice chest",
+      "platform": "tiktok",
+      "engagement": 1151259,
+      "url": "https://www.tiktok.com/@joliejanine/video/7603037195095526678",
+      "why_it_works": "Turns the expensive-purchase barrier into a build-it-yourself win using a cheap, familiar object (an ice chest). It's the single highest-engagement item across all four platforms in this run by a wide margin."
+    },
+    {
+      "text": "Should you cold plunge? What are the benefits?",
+      "platform": "tiktok",
+      "engagement": 126468,
+      "url": "https://www.tiktok.com/@doctoryoun/video/7616908862951591199",
+      "why_it_works": "A direct question aimed at the undecided, paired with credentialed-authority framing (the account name reads as a doctor)."
+    },
+    {
+      "text": "Epiphany Ice Hole Bathing: Tantangan Berendam di Air Es",
+      "platform": "tiktok",
+      "engagement": 81885,
+      "url": "https://www.tiktok.com/@k1ngk0ng__1/video/7592131673626643720",
+      "why_it_works": "Novelty/cultural-tradition and 'challenge' framing instead of a wellness pitch — spectacle pulls views without mentioning any product."
+    },
+    {
+      "text": "Cold plunging before I lift to aid in my recovery as a gym girl",
+      "platform": "tiktok",
+      "engagement": 11066,
+      "url": "https://www.tiktok.com/@sarahbyers.fit/video/7641173252219358494",
+      "why_it_works": "Hyper-specific protocol (2-3 minutes at 45°F) and named outcomes (inflammation, focus, dopamine) read as credible, copy-paste-able voice-of-customer language for an athletic audience."
+    },
+    {
+      "text": "Convenience is key.",
+      "platform": "instagram",
+      "engagement": 2123,
+      "url": "https://www.instagram.com/p/DcJ4keeBMaC/",
+      "why_it_works": "Reframes the product as a frequency-unlock rather than a cold-therapy device, and ties it to a concrete training goal (a sub-2:50 marathon)."
+    }
+  ],
+  "pain_points": [
+    {
+      "quote": "making hard habits sticky is a challenge",
+      "platform": "instagram",
+      "url": "https://www.instagram.com/p/DcL90aVtYYx/",
+      "cross_platform": false
+    },
+    {
+      "quote": "Didn't last to long",
+      "platform": "tiktok",
+      "url": "https://www.tiktok.com/@amyramseylife/video/7673259455772953874",
+      "cross_platform": false
+    }
+  ],
+  "desires": [
+    {
+      "quote": "leveling up his recovery game so he can be ready for ALL the training he's doing for his sub 2:50 Chicago Marathon and 3 Hyrox races",
+      "platform": "instagram",
+      "url": "https://www.instagram.com/p/DcJ4keeBMaC/"
+    },
+    {
+      "quote": "reducing inflammation, increasing mental clarity/focus, increasing mental strength, and boosting dopamine",
+      "platform": "tiktok",
+      "url": "https://www.tiktok.com/@sarahbyers.fit/video/7641173252219358494"
+    }
+  ],
+  "objections": [
+    {
+      "quote": "Didn't last to long",
+      "platform": "tiktok",
+      "url": "https://www.tiktok.com/@amyramseylife/video/7673259455772953874"
+    }
+  ],
+  "formats": [
+    {
+      "name": "DIY / budget-hack build",
+      "description": "Repurposing cheap household items (an ice chest) into a cold plunge, framed as a build tutorial rather than a product pitch. The highest-engagement item in this entire dataset.",
+      "example_url": "https://www.tiktok.com/@joliejanine/video/7603037195095526678"
+    },
+    {
+      "name": "Credentialed benefits explainer",
+      "description": "A short, direct-question hook answered with authority framing and specific protocol details rather than vague benefit claims.",
+      "example_url": "https://www.tiktok.com/@doctoryoun/video/7616908862951591199"
+    },
+    {
+      "name": "Novelty / spectacle challenge",
+      "description": "Framing the practice as a dare or cultural tradition instead of a wellness routine — no product mention needed to pull views.",
+      "example_url": "https://www.tiktok.com/@k1ngk0ng__1/video/7592131673626643720"
+    },
+    {
+      "name": "Creator partnership tied to a training goal",
+      "description": "Branded product woven into a creator's personal training story with a discount code, rather than a direct feature-list ad. Outperformed the direct product-ad posts in this dataset (IceTub, Blue Cube, Polar Plunge on TikTok all landed under 20k engagement).",
+      "example_url": "https://www.instagram.com/p/DcJ4keeBMaC/"
+    }
+  ],
+  "phrase_bank": [
+    "DIY making an ice bath out of an ice chest",
+    "making hard habits sticky is a challenge",
+    "Convenience is key.",
+    "reducing inflammation, increasing mental clarity/focus, increasing mental strength, and boosting dopamine",
+    "I do 2-3 minutes at 45 degrees Fahrenheit",
+    "Didn't last to long"
+  ],
+  "make_next": [
+    {
+      "idea": "A DIY/budget cold plunge build tutorial using accessible materials (e.g. a repurposed cooler/ice chest)",
+      "format": "DIY / budget-hack build",
+      "angle": "Cost and access are clearly the dominant barrier in this data — the top-performing content by a huge margin sidesteps the 'buy an expensive tub' objection entirely instead of pitching a product.",
+      "based_on_urls": [
+        "https://www.tiktok.com/@joliejanine/video/7603037195095526678",
+        "https://www.tiktok.com/@diycoldplunge/video/7190324634221284650"
+      ]
+    },
+    {
+      "idea": "A 'should you cold plunge' explainer with an exact protocol (duration, temperature) instead of generic benefit claims",
+      "format": "Credentialed benefits explainer",
+      "angle": "Specificity (2-3 min at 45°F) reads as credible, and pairs well with a direct-question hook that targets the undecided.",
+      "based_on_urls": [
+        "https://www.tiktok.com/@doctoryoun/video/7616908862951591199",
+        "https://www.tiktok.com/@sarahbyers.fit/video/7641173252219358494"
+      ]
+    },
+    {
+      "idea": "Reframe any home cold-plunge product around 'unlocking frequency' tied to a concrete athletic goal, not a spec sheet",
+      "format": "Creator partnership tied to a training goal",
+      "angle": "The best Instagram performer sells convenience-for-frequency tied to a real training goal, not the product's features — the direct feature-list product ads in this dataset consistently underperformed it.",
+      "based_on_urls": [
+        "https://www.instagram.com/p/DcJ4keeBMaC/",
+        "https://www.instagram.com/p/DcL90aVtYYx/"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "run_date": "2026-08-21",
+  "topics_scanned": ["growth mindset habits"],
+  "summary": "The general growth-mindset/habits book market is heavily saturated (the same handful of titles resurface across nearly every bookstore searched), but the highest-engagement content in this dataset by a wide margin is women-focused 'queen mindset' YouTube content — and no dedicated book in the search results matches that positioning. Short, countdown-style habit content also dramatically outperforms research-citation-style framing, suggesting audience fatigue with the dense, academic tone most existing books use.",
+  "trends": [
+    {
+      "title": "Female-specific 'queen mindset' content is winning attention that no matching book exists to capture",
+      "description": "The top two YouTube results by engagement (74,764 and a Simon-Sinek-style 'Queen Mindset' talk) are both framed specifically for women's self-respect, confidence, and boundary-setting — not generic growth mindset. None of the 36 bookstore results returned a book with that specific positioning; the closest match ('Goal Setting for Women') is a different angle entirely.",
+      "evidence_urls": [
+        "https://www.youtube.com/watch?v=4CEVCNbVrxA",
+        "https://www.youtube.com/watch?v=8nkA_Odvp_Y"
+      ]
+    },
+    {
+      "title": "The general adult growth-mindset/habits shelf is dominated by the same handful of titles everywhere you look",
+      "description": "'The Agile Learner' appears independently in Goodreads, Amazon, Indigo, Bookshop.org, and AbeBooks results for the same query. A new entrant competing head-on in this exact lane, with the same generic framing, has very little room to differentiate.",
+      "evidence_urls": [
+        "https://www.goodreads.com/nl/book/show/38734891-the-agile-learner",
+        "https://www.amazon.com/Agile-Learner-Growth-Mindset-Practice/dp/1760565717",
+        "https://www.indigo.ca/products/the-agile-learner-1"
+      ]
+    },
+    {
+      "title": "Teen-targeted growth mindset books exist but skew toward boys in the athlete niche specifically",
+      "description": "'Unstoppable Discipline and Focus for Boy Athletes' packages growth mindset for teen boy athletes specifically; the other teen titles found ('Achievement Unlocked', 'Growth Mindset Workbook for Teens') are gender-neutral/generic. No result targeted teen girl athletes specifically, despite that being a comparably sized and distinct audience.",
+      "evidence_urls": [
+        "https://uk.bookshop.org/p/books/unstoppable-discipline-and-focus-for-boy-athletes-52-essential-habits-to-build-mental-toughness-growth-mindset-and-win-in-sports-and-life-coach-g-harr/72521b0241f67d78?ean",
+        "https://www.thriftbooks.com/w/the-growth-mindset-workbook-for-teens/27125831/?srsltid"
+      ]
+    },
+    {
+      "title": "Audiobook-format content aimed at professionals/entrepreneurs pulls strong engagement with a distinct tone from teen/generic titles",
+      "description": "'Want to Be Extraordinary? Start with These 12 Habits' (8,609 engagement) is explicitly positioned for professionals, entrepreneurs, and leaders — a more ambition-driven, career-coded tone than the generic self-help framing dominating the bookstore results.",
+      "evidence_urls": [
+        "https://www.youtube.com/watch?v=7zBU5OqAn5M"
+      ]
+    },
+    {
+      "title": "Short, countdown-style habit content massively outperforms long-form academic/research-citation framing on the same topic",
+      "description": "'3 Daily Habits That Will Make You Mentally Stronger' pulled 4,989 engagement in a short format. By contrast, a video built around citing Carol Dweck's 30 years of peer-reviewed research pulled 13 engagement, and a 10-item 'signs' list pulled 1. The audience is rewarding brevity and directness, not academic credibility.",
+      "evidence_urls": [
+        "https://www.youtube.com/watch?v=L7uS67PWNlg",
+        "https://www.youtube.com/watch?v=d8UY0kCz0KE",
+        "https://www.youtube.com/watch?v=f4dRTTj_zTQ"
+      ]
+    }
+  ],
+  "book_concepts": [
+    {
+      "title": "Queen Mindset",
+      "subtitle": "The Growth-Mindset Playbook Nobody Wrote For Women",
+      "target_audience": "Women in personal growth, entrepreneurship, and career-building contexts, per the audience segments this report tracks.",
+      "core_promise": "Apply growth-mindset psychology specifically to the situations women describe fighting for respect in — not a gender-swapped version of a book written for someone else.",
+      "market_gap": "Highest engagement in this dataset with no matching book found in 9 bookstore/review sites searched (trend 1).",
+      "evidence_urls": ["https://www.youtube.com/watch?v=4CEVCNbVrxA", "https://www.youtube.com/watch?v=8nkA_Odvp_Y"]
+    },
+    {
+      "title": "The Three-Habit Reset",
+      "subtitle": "Rebuild Your Mindset Without Reading Another 300-Page System",
+      "target_audience": "People needing a new mindset who are fatigued by dense multi-chapter self-help systems.",
+      "core_promise": "Everything the saturated growth-mindset shelf tries to teach in 15 chapters, distilled to the three habits the data shows people actually keep.",
+      "market_gap": "Short-format content dramatically outperforms long/academic framing on this exact topic (trend 5), but every bookstore result found is a full-length system-style book.",
+      "evidence_urls": ["https://www.youtube.com/watch?v=L7uS67PWNlg"]
+    },
+    {
+      "title": "Unbreakable",
+      "subtitle": "A Growth-Mindset Guide for Girls Who Compete",
+      "target_audience": "Teen girl athletes and their parents/coaches.",
+      "core_promise": "The same mental-toughness training already published for boy athletes, built around the specific pressures girls in competitive sport describe.",
+      "market_gap": "A directly comparable book exists for boy athletes; no equivalent for girls turned up across any site searched (trend 3).",
+      "evidence_urls": ["https://uk.bookshop.org/p/books/unstoppable-discipline-and-focus-for-boy-athletes-52-essential-habits-to-build-mental-toughness-growth-mindset-and-win-in-sports-and-life-coach-g-harr/72521b0241f67d78?ean"]
+    },
+    {
+      "title": "Built, Not Born",
+      "subtitle": "The Extraordinary Habits of Founders Who Started Ordinary",
+      "target_audience": "Entrepreneurs and small business owners.",
+      "core_promise": "A career-coded, ambition-driven take on habit-building aimed squarely at founders, not a generic audience.",
+      "market_gap": "The professional/entrepreneur-coded angle shows real engagement (trend 4) but the bookstore results skew toward generic or teen audiences, not a founder-specific voice.",
+      "evidence_urls": ["https://www.youtube.com/watch?v=7zBU5OqAn5M"]
+    },
+    {
+      "title": "Why Atomic Habits Didn't Stick",
+      "subtitle": "What To Do When You've Already Read The Habit Books",
+      "target_audience": "People who've already tried mainstream habit/mindset books and want change but haven't gotten it.",
+      "core_promise": "Written for the reader the rest of this saturated shelf assumes doesn't exist: someone who already did the reading and is still stuck.",
+      "market_gap": "Every bookstore result in this dataset targets a first-time reader discovering growth mindset; none address the reader who already tried the standard titles (trend 2) and needs something different, not more of the same framework.",
+      "evidence_urls": ["https://www.goodreads.com/nl/book/show/38734891-the-agile-learner", "https://www.amazon.com/Agile-Learner-Growth-Mindset-Practice/dp/1760565717"]
+    }
+  ],
+  "angles": [
+    {
+      "name": "The underserved-audience angle: Queen Mindset",
+      "description": "Position squarely as the growth-mindset book written for women's actual situations, not a repackaged unisex title.",
+      "why_it_sells": "It's chasing proven demand: the two highest-engagement items in this entire dataset are women-specific mindset content, and that demand currently has no dedicated book competing for it.",
+      "market_gap_addressed": "Trend 1 — high content demand with zero matching book supply found across 9 sites."
+    },
+    {
+      "name": "The format-differentiation angle: The Three-Habit Reset",
+      "description": "Compete on brevity against an oversaturated shelf of dense systems, positioned explicitly against 'another 300-page habit book.'",
+      "why_it_sells": "The data shows a consistent, large engagement gap favoring short/direct content over long or academic framing on this exact topic — a structural preference, not a one-off.",
+      "market_gap_addressed": "Trend 5 — audience fatigue with the 'standard package' every existing competitor offers."
+    }
+  ],
+  "table_of_contents": [
+    {"chapter": 1, "title": "The Mindset You Were Handed", "description": "Naming the specific double-standard growth-mindset advice quietly assumes a male reader, and why that's the actual starting problem."},
+    {"chapter": 2, "title": "The Competence Tax", "description": "Why women's growth-mindset setbacks are disproportionately read as character flaws, not skill gaps — and how that changes what 'resilience' actually requires."},
+    {"chapter": 3, "title": "The Apology Habit", "description": "Breaking the reflex of softening ambition before anyone's even pushed back."},
+    {"chapter": 4, "title": "Rooms Where You Weren't the Default", "description": "Building growth-mindset confidence specifically in spaces designed around someone else's comfort."},
+    {"chapter": 5, "title": "The Likability Trade-Off", "description": "What happens to a growth mindset when pursuing it costs you being liked, and how to keep going anyway."},
+    {"chapter": 6, "title": "Comparison as a Second Job", "description": "Undoing the specific, curated-feed comparison loop that generic habit books don't address."},
+    {"chapter": 7, "title": "Boundaries as a Skill, Not a Personality Trait", "description": "Treating boundary-setting as a trainable growth-mindset habit rather than something you either have or don't."},
+    {"chapter": 8, "title": "The Career Plateau Nobody Warned You About", "description": "Applying growth-mindset thinking to the specific, well-documented mid-career stall many women hit."},
+    {"chapter": 9, "title": "Money as Mindset Work", "description": "Financial confidence as an explicit growth-mindset skill, not a separate topic bolted onto the end of a chapter."},
+    {"chapter": 10, "title": "The Identity Reset After Motherhood", "description": "Growth mindset for the specific identity disruption new motherhood creates, addressed directly rather than folded into generic 'life transitions.'"},
+    {"chapter": 11, "title": "Mentors Who Look Like You Weren't Optional", "description": "Building a support structure deliberately, as a mindset practice, not leaving it to chance."},
+    {"chapter": 12, "title": "Saying the Ambitious Thing Out Loud", "description": "Practicing naming what you actually want, specifically and without hedging."},
+    {"chapter": 13, "title": "Recovering From Being Underestimated", "description": "Turning being underestimated into usable information instead of a wound to manage silently."},
+    {"chapter": 14, "title": "The Queen Mindset in Conflict", "description": "Staying in your growth-mindset identity under direct disagreement or confrontation, not just in calm reflection."},
+    {"chapter": 15, "title": "What You Do With the Room Once You Have It", "description": "Using earned influence to change the room for the next woman in it — closing the book on legacy, not just personal achievement."}
+  ],
+  "differentiation_notes": "Every existing title found (The Agile Learner, Atomic Habits, High Performance Habits, The Breakthrough Catalyst) organizes around generic habit-formation mechanics: cue-routine-reward loops, goal-setting, consistency. This TOC instead organizes around specific situations the source YouTube content's top comments and framing (competence bias, likability trade-offs, being underestimated) surface as distinctly gendered friction points — none of which appeared as chapter topics in any of the 9 bookstore sites searched. The closest adjacent existing title, 'Goal Setting for Women,' organizes around goal-setting mechanics rather than these social/structural friction points, so the differentiation holds against it too.",
+  "sources_consulted": [
+    {"site": "youtube", "title": "The Art of Becoming Self-Educated.", "url": "https://www.youtube.com/watch?v=4CEVCNbVrxA"},
+    {"site": "youtube", "title": "Want to Be Extraordinary? Start with These 12 Habits", "url": "https://www.youtube.com/watch?v=7zBU5OqAn5M"},
+    {"site": "youtube", "title": "3 Daily Habits That Will Make You Mentally Stronger", "url": "https://www.youtube.com/watch?v=L7uS67PWNlg"},
+    {"site": "youtube", "title": "5 Habits of Women With an Unshakable Queen Mindset", "url": "https://www.youtube.com/watch?v=8nkA_Odvp_Y"},
+    {"site": "youtube", "title": "The Growth Mindset Habit: What Carol Dweck's 30 Years of Research Proves", "url": "https://www.youtube.com/watch?v=d8UY0kCz0KE"},
+    {"site": "youtube", "title": "10 Signs You Have a Growth Mindset", "url": "https://www.youtube.com/watch?v=f4dRTTj_zTQ"},
+    {"site": "goodreads", "title": "Popular Growth Mindset and Habits Books", "url": "https://www.goodreads.com/shelf/show/growth-mindset-and-habits"},
+    {"site": "goodreads", "title": "The Agile Learner", "url": "https://www.goodreads.com/nl/book/show/38734891-the-agile-learner"},
+    {"site": "lulu", "title": "Turning Failures into Success", "url": "https://www.lulu.com/shop/sabiq-v/turning-failures-into-success-simple-habits-to-build-resilience-and-achieve-your-goals-unlocking-your-potential-through-resilience-and-purpose-driven-habits/paperback/product-zm79pd6.html?srsltid=AfmBOorIP1567ei0ZTbSZQDQb0LUChkgWWvFB38n6MbHiD1dytwrgmzz"},
+    {"site": "lulu", "title": "Goal Setting for Women", "url": "https://www.lulu.com/shop/chidiebere-franklin-iroegbu/goal-setting-for-women/hardcover/product-gjzkvrw.html?srsltid=AfmBOoowjjUJguvIH-WeeTdTUrwufZ7PT-6aC896qKlEaPbywLjj2RSh"},
+    {"site": "applebooks", "title": "Habits & Growth Mindset", "url": "https://books.apple.com/ca/audiobook/habits-growth-mindset-discover-the-secrets-to-success/id1713500400?l=fr-CA"},
+    {"site": "amazon", "title": "The Agile Learner", "url": "https://www.amazon.com/Agile-Learner-Growth-Mindset-Practice/dp/1760565717"},
+    {"site": "amazon", "title": "THE 5 GROWTH MINDSET HABITS", "url": "https://www.amazon.com/5-GROWTH-MINDSET-HABITS/dp/B0C7T5FLXK"},
+    {"site": "barnesandnoble", "title": "The Breakthrough Catalyst", "url": "https://www.barnesandnoble.com/w/the-breakthrough-catalyst-hathor-ai-salie/1150140208"},
+    {"site": "indigo", "title": "The Agile Learner", "url": "https://www.indigo.ca/products/the-agile-learner-1"},
+    {"site": "bookshop", "title": "Unstoppable Discipline and Focus for Boy Athletes", "url": "https://uk.bookshop.org/p/books/unstoppable-discipline-and-focus-for-boy-athletes-52-essential-habits-to-build-mental-toughness-growth-mindset-and-win-in-sports-and-life-coach-g-harr/72521b0241f67d78?ean"},
+    {"site": "thriftbooks", "title": "The Growth Mindset Workbook for Teens", "url": "https://www.thriftbooks.com/w/the-growth-mindset-workbook-for-teens/27125831/?srsltid"},
+    {"site": "abebooks", "title": "Design Your Life", "url": "https://www.abebooks.com/9781521517208/Master-Day-Design-Life-Develop-1521517207/plp"}
+  ]
+}
