@@ -23,9 +23,16 @@ gap. That judgment is entirely yours, applied to the data they produce.
   public API; Goodreads' was shut down years ago and Amazon's requires an
   approved affiliate account, so this goes through Firecrawl site-scoped
   search instead).
-- `GMAIL_ADDRESS` and `GMAIL_APP_PASSWORD` — for sending the report. The app
-  password comes from https://myaccount.google.com/apppasswords (requires
-  2-Step Verification on the account) — it is not the account's real password.
+- `RESEND_API_KEY` — for sending the report, via Resend's HTTPS API
+  (https://resend.com/api-keys). Not SMTP: Claude Code's cloud sandbox only
+  proxies HTTP/HTTPS traffic, so a raw SMTP connection (Gmail's included)
+  hangs indefinitely there even with full network access — this is an
+  architectural limit of the sandbox, not a settings issue. Without a
+  verified domain on the Resend account, the default sender
+  (`onboarding@resend.dev`) can only send to the address the Resend account
+  itself is registered under, so `--to` should point at that address, with
+  any other recipients reached via a mail-provider forwarding rule on that
+  inbox rather than a second direct send.
 - Python's `requests` package (`pip install requests`).
 
 If any of these are missing, say so plainly and either wait for the user to
@@ -157,12 +164,15 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/book-gap-finder/scripts/render.py" \
   --brief "./.book-gap-finder/$(date +%Y-%m-%d)/brief.json"
 ```
 
-Then email it — recipients and cadence are fixed by standing instruction, not
-something to ask about each run:
+Then email it — recipient and cadence are fixed by standing instruction, not
+something to ask about each run. `--to` is a single address (see Prerequisites
+above for why: the sender can only reach its own registered address without a
+verified domain); any additional recipients are handled by a forwarding rule
+on that inbox, not a second send from here:
 
 ```bash
 python "${CLAUDE_PLUGIN_ROOT}/skills/book-gap-finder/scripts/send_email.py" \
-  --to "felixngalla@yahoo.com,firstcallh@gmail.com" \
+  --to "letstalkmoveon@gmail.com" \
   --subject "Book Gap Report — $(date +%Y-%m-%d)" \
   --html "./.book-gap-finder/$(date +%Y-%m-%d)/report.html"
 ```
