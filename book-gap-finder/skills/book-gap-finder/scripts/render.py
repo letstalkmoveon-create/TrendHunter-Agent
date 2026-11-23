@@ -31,6 +31,34 @@ def esc(s):
     return html.escape(str(s)) if s is not None else ""
 
 
+def render_pick(i, p):
+    return f"""
+    <div class="card pick-card">
+      <h3>Pick {i}: {esc(p.get("title", ""))}</h3>
+      <p class="subtitle">{esc(p.get("subtitle", ""))}</p>
+      <p>{esc(p.get("pitch", ""))}</p>
+      <p><strong>Why this is a top pick:</strong> {esc(p.get("why_this_one", ""))}</p>
+    </div>"""
+
+
+def render_platform_finding(p):
+    return f"""
+    <div class="card platform-card">
+      <h3>{esc(p.get("platform", ""))}</h3>
+      <p><strong>High demand:</strong> {esc(p.get("high_demand", ""))}</p>
+      <p><strong>Gap:</strong> {esc(p.get("gap", ""))}</p>
+      <p><strong>Underserved angle:</strong> {esc(p.get("underserved_angle", ""))}</p>
+    </div>"""
+
+
+def render_source_proposal(s):
+    return (
+        f'<li><strong>{esc(s.get("name", ""))}</strong> '
+        f'<span class="site-tag">{esc(s.get("status", ""))}</span>'
+        f'<br><span class="muted">{esc(s.get("why", ""))}</span></li>'
+    )
+
+
 def render_trend(i, t):
     urls = t.get("evidence_urls") or []
     links = " · ".join(f'<a href="{esc(u)}">source</a>' for u in urls)
@@ -110,6 +138,9 @@ table.toc td { border-bottom:1px solid #eee3d3; padding:.6rem .5rem; font-size:.
 .sources li { padding:.25rem 0; border-bottom:1px solid #eee3d3; }
 .site-tag { display:inline-block; background:#eee3d3; color:#5a5347; font-size:.7rem; text-transform:uppercase; padding:.1rem .4rem; border-radius:4px; margin-right:.4rem; }
 .diff-notes { background:#fff; padding:1rem 1.25rem; border-radius:8px; font-size:.92rem; }
+.pick-card { border-left:4px solid #1f6f9c; background:#f4faff; }
+.platform-card { border-left:4px solid #8a4fae; }
+.repeat-check { font-size:.85rem; color:#5a5347; background:#eef6ea; border-radius:6px; padding:.6rem .9rem; margin-bottom:1rem; }
 """
 
 
@@ -123,12 +154,52 @@ def render_html(brief):
     toc = brief.get("table_of_contents") or []
     diff = brief.get("differentiation_notes", "")
     sources = brief.get("sources_consulted") or []
+    picks = brief.get("top_3_picks") or []
+    platform_findings = brief.get("platform_findings") or []
+    proposed_sources = brief.get("proposed_new_sources") or []
+    repeat_check = brief.get("repeat_check") or {}
+
+    repeat_html = ""
+    if repeat_check:
+        prior = ", ".join(repeat_check.get("prior_topics_checked_against") or [])
+        repeat_html = (
+            f'<div class="repeat-check">✓ Checked against {esc(len(repeat_check.get("prior_topics_checked_against") or []))} '
+            f'previously-scanned topic(s) ({esc(prior)}) — no repeats this run.</div>'
+        )
+
+    picks_section = ""
+    if picks:
+        picks_section = f"""
+    <section>
+      <h2>Proposal: Top 3 Picks</h2>
+      <p class="muted">Plain-language summary of the strongest options from the 5 book concepts below — read this section first.</p>
+      {"".join(render_pick(i + 1, p) for i, p in enumerate(picks))}
+    </section>"""
+
+    platforms_section = ""
+    if platform_findings:
+        platforms_section = f"""
+    <section>
+      <h2>New Platforms Checked</h2>
+      <p class="muted">Instagram, Facebook, Draft2Digital and other author/reader platforms, each broken into what's in high demand, what's missing, and a specific underserved angle.</p>
+      {"".join(render_platform_finding(p) for p in platform_findings)}
+    </section>"""
+
+    proposed_sources_section = ""
+    if proposed_sources:
+        proposed_sources_section = f"""
+    <section>
+      <h2>Proposed New Sources for Future Runs</h2>
+      <ul class="sources">{"".join(render_source_proposal(s) for s in proposed_sources)}</ul>
+    </section>"""
 
     body = f"""
     <div class="wrap">
     <h1>Self-Help &amp; Non-Fiction Market Gap Report</h1>
     <div class="subtitle-line">{esc(run_date)} · Topics scanned: {esc(topics)}</div>
+    {repeat_html}
     {f'<div class="summary">{esc(summary)}</div>' if summary else ''}
+    {picks_section}
 
     <section>
       <h2>5 High-Demand Trends</h2>
@@ -150,7 +221,8 @@ def render_html(brief):
       {render_toc(toc)}
       {f'<p class="diff-notes"><strong>Why this differs from what exists:</strong> {esc(diff)}</p>' if diff else ''}
     </section>
-
+    {platforms_section}
+    {proposed_sources_section}
     <section>
       <h2>Sources Consulted</h2>
       {render_sources(sources)}

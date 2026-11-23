@@ -53,6 +53,44 @@ BOOKSTORE_SITES = {
     "bookdepot": "bookdepot.com",
 }
 
+# Tier 1 — confirmed via Firecrawl site-scoped search (2026-11-23) to return
+# real, non-fabricated results through the same fetch_site() mechanism as
+# BOOKSTORE_SITES. Included by default alongside the 12 bookstore sites
+# because they surface a different signal the bookstore search snippets
+# can't: unprompted reader pain-point language (reddit, quora, facebook
+# groups), social discovery/marketing trends (instagram, tiktok), and what
+# authors/publishers are actively producing or pushing next (draft2digital,
+# bookbub, netgalley, reedsy) rather than just what's already shelved.
+AUTHOR_PLATFORM_SITES = {
+    "reddit": "reddit.com",
+    "quora": "quora.com",
+    "facebook": "facebook.com",
+    "instagram": "instagram.com",
+    "tiktok": "tiktok.com",
+    "draft2digital": "draft2digital.com",
+    "bookbub": "bookbub.com",
+    "netgalley": "netgalley.com",
+    "reedsy": "reedsy.com",
+}
+
+# Tier 2 — also confirmed working, but lower reader-demand signal density
+# (more author-craft/forum chatter and industry-trade content than direct
+# pain-point or purchase-intent signal). Not run by default; pass their
+# keys via --sites to include them for a deeper, slower pass.
+EXTENDED_SITES = {
+    "pinterest": "pinterest.com",
+    "medium": "medium.com",
+    "smashwords": "smashwords.com",
+    "writtenwordmedia": "writtenwordmedia.com",
+    "kobowritinglife": "kobowritinglife.com",
+    "publishersweekly": "publishersweekly.com",
+    "kboards": "kboards.com",
+    "absolutewrite": "absolutewrite.com",
+    "ingramspark": "ingramspark.com",
+}
+
+ALL_SITES = {**BOOKSTORE_SITES, **AUTHOR_PLATFORM_SITES, **EXTENDED_SITES}
+
 
 class ConfigError(Exception):
     """Raised when a required credential is missing, with a fix-it message."""

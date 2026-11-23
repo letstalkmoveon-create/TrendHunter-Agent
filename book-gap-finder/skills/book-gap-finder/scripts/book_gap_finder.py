@@ -21,18 +21,25 @@ from pathlib import Path
 
 import analyze
 import sources
-from sources import ConfigError, BOOKSTORE_SITES
+from sources import ConfigError, BOOKSTORE_SITES, AUTHOR_PLATFORM_SITES, EXTENDED_SITES, ALL_SITES
+
+DEFAULT_SITES = {**BOOKSTORE_SITES, **AUTHOR_PLATFORM_SITES}  # 12 bookstores + 9 author/social platforms
 
 
 def parse_args(argv=None):
-    p = argparse.ArgumentParser(description="Scan YouTube + book/review sites for self-help/non-fiction market gaps.")
+    p = argparse.ArgumentParser(description="Scan YouTube + book/review/author-platform sites for self-help/non-fiction market gaps.")
     p.add_argument("--topics", required=True, help="Comma-separated search topics/keywords to scan this run.")
     p.add_argument("--output-dir", default="./.book-gap-finder", help="Directory to write ranked.json into.")
     p.add_argument("--max-results", type=int, default=15, help="Per-topic YouTube result cap.")
     p.add_argument("--per-site-results", type=int, default=6, help="Per-topic, per-bookstore-site result cap.")
     p.add_argument("--timeframe", default="month", choices=["hour", "today", "week", "month", "year"],
                     help="Recency window for YouTube search.")
-    p.add_argument("--sites", default="", help="Comma-separated site keys to limit to (default: all 12).")
+    p.add_argument("--sites", default="",
+                    help="Comma-separated site keys to limit to (default: all 12 bookstore sites + "
+                         "9 author/social platform sites — reddit, quora, facebook, instagram, tiktok, "
+                         "draft2digital, bookbub, netgalley, reedsy). Pass a Tier-2 EXTENDED_SITES key "
+                         "(pinterest, medium, smashwords, writtenwordmedia, kobowritinglife, "
+                         "publishersweekly, kboards, absolutewrite, ingramspark) explicitly to include it.")
     p.add_argument("--skip", default="", help="Comma-separated sources to skip, e.g. 'youtube' or a site key.")
     return p.parse_args(argv)
 
@@ -45,7 +52,13 @@ def main(argv=None):
 
     skip = {s.strip().lower() for s in args.skip.split(",") if s.strip()}
     site_filter = [s.strip().lower() for s in args.sites.split(",") if s.strip()]
-    sites = {k: v for k, v in BOOKSTORE_SITES.items() if not site_filter or k in site_filter}
+    if site_filter:
+        unknown = [k for k in site_filter if k not in ALL_SITES]
+        if unknown:
+            sys.exit(f"Unknown --sites key(s): {', '.join(unknown)}. Known keys: {', '.join(sorted(ALL_SITES))}")
+        sites = {k: ALL_SITES[k] for k in site_filter}
+    else:
+        sites = dict(DEFAULT_SITES)
 
     all_youtube = []
     all_bookstore_by_site = {k: [] for k in sites}
