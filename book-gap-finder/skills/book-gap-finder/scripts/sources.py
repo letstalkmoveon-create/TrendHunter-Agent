@@ -27,6 +27,7 @@ Every normalized item has this shape:
 import os
 import re
 import sys
+import time
 
 try:
     import requests
@@ -151,24 +152,42 @@ def fetch_youtube(query, limit=15, timeframe="month"):
 # Book/review sites — Firecrawl site-scoped search (no free APIs exist for these)
 # ---------------------------------------------------------------------------
 
-def fetch_site(site_key, domain, query, limit=8):
+def fetch_site(site_key, domain, query, limit=8, max_retries=3, retry_wait=20):
+    """
+    max_retries/retry_wait: on a 429, sleep retry_wait seconds and try again,
+    up to max_retries times, before giving up. Added 2026-11-23 after runs
+    with 21 sites across 3+ topics needed a manual backfill pass for sites
+    that got rate-limited later in the run even at 2.0s between requests —
+    this makes that recovery automatic instead of a separate script.
+    """
     key = _require_env(
         "FIRECRAWL_API_KEY",
         "Get one from your Firecrawl dashboard at https://www.firecrawl.dev (Settings/API Keys).",
     )
-    try:
-        resp = requests.post(
-            FIRECRAWL_SEARCH_URL,
-            headers={"Authorization": f"Bearer {key}"},
-            json={"query": f"site:{domain} {query}", "limit": limit},
-            timeout=REQUEST_TIMEOUT,
-        )
-        if resp.status_code == 401:
-            raise ConfigError("FIRECRAWL_API_KEY was rejected (401). Double-check the key value.")
-        resp.raise_for_status()
-        data = resp.json()
-    except requests.RequestException as e:
-        return [], [f"{site_key}: Firecrawl search failed ({e})"]
+    attempt = 0
+    while True:
+        try:
+            resp = requests.post(
+                FIRECRAWL_SEARCH_URL,
+                headers={"Authorization": f"Bearer {key}"},
+                json={"query": f"site:{domain} {query}", "limit": limit},
+                timeout=REQUEST_TIMEOUT,
+            )
+            if resp.status_code == 401:
+                raise ConfigError("FIRECRAWL_API_KEY was rejected (401). Double-check the key value.")
+            if resp.status_code == 429 and attempt < max_retries:
+                attempt += 1
+                time.sleep(retry_wait)
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            break
+        except requests.RequestException as e:
+            if attempt < max_retries:
+                attempt += 1
+                time.sleep(retry_wait)
+                continue
+            return [], [f"{site_key}: Firecrawl search failed ({e})"]
 
     items = []
     for item in data.get("data", {}).get("web", []):
