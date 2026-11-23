@@ -94,7 +94,10 @@ def main(argv=None):
             except ConfigError as e:
                 all_errors.append(f"{site_key}: {e}")
                 print(f"    {site_key}: SKIPPED — {e}", file=sys.stderr)
-            time.sleep(1.2)  # Firecrawl rate-limits back-to-back searches; space them out
+            time.sleep(2.0)  # Firecrawl rate-limits back-to-back searches; space them out.
+            # (Raised from 1.2s when the site count went from 12 to 21 — confirmed via live
+            # testing on 2026-11-23 that 1.2s still produced 429s on roughly half the newly
+            # added sites in a single-topic run.)
         print(f"    bookstores: {sum(len(v) for v in all_bookstore_by_site.values())} total items so far", file=sys.stderr)
 
     report = analyze.build_report(
