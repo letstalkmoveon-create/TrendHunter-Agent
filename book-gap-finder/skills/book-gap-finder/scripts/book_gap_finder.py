@@ -90,7 +90,12 @@ def main(argv=None):
         if "amazon_sales" not in skip:
             try:
                 items, errors = sources.fetch_amazon(topic, limit=args.amazon_results)
-                amazon_by_topic[topic] = {"market": analyze.amazon_market_score(items), "books": items}
+                amazon_by_topic[topic] = {"market": analyze.amazon_market_score(items),
+                                          "category_openings": analyze.category_openings(items),
+                                          "books": items}
+                searches, errs = sources.fetch_amazon_searches(topic)
+                amazon_by_topic[topic]["searches"] = searches
+                all_errors.extend(errs)
                 all_errors.extend(errors)
                 print(f"    amazon_sales: {len(items)} books, verdict {amazon_by_topic[topic]['market']['verdict']}", file=sys.stderr)
             except ConfigError as e:

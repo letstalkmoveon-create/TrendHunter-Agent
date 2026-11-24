@@ -144,6 +144,11 @@ This hits YouTube plus 21 sites by default for every topic:
   other sources can't give. Rough KDP rules of thumb: BSR under ~20k ≈ 10+
   copies a day, under ~100k ≈ 1+ a day, over ~300k ≈ rarely sells; a title
   with 500+ reviews is entrenched.
+  Each topic also has `searches` — Amazon's own search-box autocomplete
+  (`topic_is_searched` plus up to 10 `related_searches`, which are only ever
+  phrases real shoppers type) — and `category_openings`: Amazon
+  sub-categories where an on-topic book ranks top-20 even at a modest overall
+  rank (`overall_rank_needed` — the higher it is, the easier that category).
 
 After the fan-out, flag everything already cited by a prior run, so new
 evidence stands out:
@@ -243,12 +248,16 @@ are fixed requirements, not suggestions:
       {"factor": "Evidence", "grade": "Strong | Moderate | Thin", "note": "How many independent sources show the pain point, including review complaints."},
       {"factor": "Timing", "grade": "Now | Soon | Evergreen", "note": "Which seasonal peak it fits and the latest date to start writing to hit it."}
     ],
+    "proof": {
+      "buyer_searches": ["up to 3 phrases copied exactly from searches.related_searches that fit this book"],
+      "category_opening": "One line from category_openings, e.g. 'Gerontology: a book ranked #66,144 overall sits at #18.' Omit if none."
+    },
     "validation_piece": "One free piece to publish first to test interest before writing the whole book (e.g. a post, short video, or lead magnet) — what it is and what response would mean go.",
     "next_steps": ["3 concrete actions for the next 30 days"]
   },
   "amazon_market": [
     {"topic": "...", "verdict": "copy market.verdict", "median_bsr": 0, "best_bsr": 0,
-     "entrenched_titles": 0, "reader_complaints": "Top recurring complaints about the best-selling competitors, in plain words.",
+     "entrenched_titles": 0, "searched": true, "reader_complaints": "Top recurring complaints about the best-selling competitors, in plain words.",
      "comp_titles": [{"title": "...", "bsr": 0, "reviews": 0, "year": "2025", "url": "..."}]}
   ],
   "top_3_picks": [
@@ -317,7 +326,14 @@ numbers from `amazon` (BSRs, review counts, years). "Go" needs Strong or
 Moderate demand and Open or Contested competition; use "Test first" when the
 demand data is mixed (then the `validation_piece` is the deciding test), and
 "Pass" only if no concept this run clears the bar — say what would change
-that. `top_3_picks` should still include the recommended title.
+that. **Grade Demand on purchase evidence plus search evidence**: Strong
+needs on-topic books selling (BSR under ~20k) *and* `topic_is_searched`;
+a topic nobody searches can't be graded above Moderate however well a
+loosely related book sells. If `related_searches` show buyers wanting a
+different format or angle than the concept (e.g. a log book or workbook,
+not a narrative guide), say so in the Demand note and let it shape the
+concept. `proof.buyer_searches` must be copied verbatim from
+`related_searches` — never invent or paraphrase a search phrase. `top_3_picks` should still include the recommended title.
 
 **Amazon market** — one entry per topic scanned, straight from
 `ranked.json` → `amazon`: copy the numbers, list 2-4 on-topic comp titles

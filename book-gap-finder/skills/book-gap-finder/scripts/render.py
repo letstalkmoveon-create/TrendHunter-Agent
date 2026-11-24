@@ -63,10 +63,22 @@ def render_recommendation(r):
         <p class="subtitle">{esc(r.get("subtitle"))}</p>
         <p><strong>{esc(r.get("one_line"))}</strong></p>
         <table class="scorecard">{rows}</table>
+        {_proof_lines(r.get("proof") or {})}
         {f'<p><strong>Test it first:</strong> {esc(r.get("validation_piece"))}</p>' if r.get("validation_piece") else ""}
         {f'<p><strong>Next 30 days:</strong></p><ol class="steps">{steps}</ol>' if steps else ""}
       </div>
     </section>"""
+
+
+def _proof_lines(proof):
+    out = ""
+    searches = [x for x in (proof.get("buyer_searches") or [])][:3]
+    if searches:
+        out += ('<p class="proof"><strong>What buyers type into Amazon:</strong> '
+                + ", ".join(f"&ldquo;{esc(x)}&rdquo;" for x in searches) + "</p>")
+    if proof.get("category_opening"):
+        out += f'<p class="proof"><strong>Easiest category to rank in:</strong> {esc(proof["category_opening"])}</p>'
+    return out
 
 
 def _fmt_rank(n):
@@ -96,7 +108,9 @@ def render_market_table(market):
             f'<a href="{esc(c.get("url"))}">{esc(c.get("title"))}</a> ({_fmt_rank(c.get("bsr"))})'
             for c in (m.get("comp_titles") or [])[:2]
         )
-        rows += (f'<tr><td><strong>{esc(m.get("topic"))}</strong><br><span class="site-tag">{esc(m.get("verdict"))}</span></td>'
+        searched = {True: "searched on Amazon", False: "not searched on Amazon"}.get(m.get("searched"), "")
+        rows += (f'<tr><td><strong>{esc(m.get("topic"))}</strong><br><span class="site-tag">{esc(m.get("verdict"))}</span>'
+                 f'{f"<br><span class=muted>{searched}</span>" if searched else ""}</td>'
                  f'<td>{_fmt_rank(m.get("best_bsr"))}</td>'
                  f'<td>{esc(m.get("reader_complaints"))}{f"<br><span class=muted>Comps: {comps}</span>" if comps else ""}</td></tr>')
     return ('<table class="market"><tr><th>Topic</th><th>Best rank</th><th>What readers say is missing</th></tr>'
@@ -108,7 +122,7 @@ def render_market_table(market):
 WORD_LIMITS = {
     "summary": 45, "recommendation.one_line": 30, "recommendation.scorecard.note": 20,
     "recommendation.validation_piece": 40, "recommendation.next_steps": 18,
-    "top_3_picks.pitch": 30, "trends.description": 45, "book_concepts.core_promise": 30,
+    "top_3_picks.pitch": 30, "recommendation.proof.category_opening": 25, "trends.description": 45, "book_concepts.core_promise": 30,
     "book_concepts.market_gap": 35, "angles.description": 40, "table_of_contents.description": 20,
     "stakeholders.why_they_know": 25, "amazon_market.reader_complaints": 25,
 }
@@ -128,6 +142,9 @@ def lint(brief):
     check("recommendation.validation_piece", rec.get("validation_piece"))
     for f in rec.get("scorecard") or []:
         check("recommendation.scorecard.note", f.get("note"))
+    check("recommendation.proof.category_opening", (rec.get("proof") or {}).get("category_opening"))
+    if len((rec.get("proof") or {}).get("buyer_searches") or []) > 3:
+        warnings.append("recommendation.proof.buyer_searches: more than 3 — keep the 3 most telling")
     for x in rec.get("next_steps") or []:
         check("recommendation.next_steps", x)
     for key, field in [("top_3_picks", "pitch"), ("trends", "description"), ("book_concepts", "core_promise"),
@@ -268,6 +285,7 @@ table.scorecard td { border-top:1px solid #eee3d3; padding:.45rem .4rem; vertica
 .market-card { border-left:4px solid #c08a1e; }
 .comps { font-size:.85rem; padding-left:1.1rem; margin:.4rem 0 0; }
 .comps a { color:#b5651d; }
+.proof { font-size:.88rem; color:#4a443b; }
 .also { padding-left:1.1rem; font-size:.95rem; line-height:1.5; }
 .also li { margin-bottom:.4rem; }
 .divider { margin:2.5rem 0 1.5rem; padding:.8rem 1rem; border-top:3px double #c9bfa9; color:#847a6a; font-size:.85rem; text-align:center; font-style:italic; }

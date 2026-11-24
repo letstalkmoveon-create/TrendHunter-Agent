@@ -388,3 +388,41 @@ def fetch_amazon_lists(limit=20):
                 "price": price.get("value") if isinstance(price, dict) else price,
             })
     return out, []
+
+
+# ---------------------------------------------------------------------------
+# Amazon search-box demand — Amazon's public autocomplete endpoint (no key).
+# Autocomplete only offers phrases real shoppers type, so a topic showing up
+# here is direct evidence of buyer search demand, and the suggestions are the
+# exact wording buyers use (useful for titles/subtitles).
+# ---------------------------------------------------------------------------
+
+AMAZON_AUTOCOMPLETE_URL = "https://completion.amazon.com/api/2017/suggestions"
+
+
+def fetch_amazon_searches(topic):
+    words = topic.lower().split()
+    prefixes = [topic.lower()]
+    if len(words) > 2:
+        prefixes.append(" ".join(words[:2]))
+    if len(words) > 1:
+        prefixes.append(" ".join(words[:-1]))
+    seen, suggestions, errors = set(), [], []
+    for prefix in dict.fromkeys(prefixes):
+        try:
+            resp = requests.get(AMAZON_AUTOCOMPLETE_URL, timeout=REQUEST_TIMEOUT, params={
+                "mid": "ATVPDKIKX0DER", "alias": "stripbooks", "prefix": prefix, "limit": 10})
+            resp.raise_for_status()
+            for sgt in resp.json().get("suggestions", []):
+                v = (sgt.get("value") or "").strip()
+                if v and v not in seen:
+                    seen.add(v)
+                    suggestions.append(v)
+        except (requests.RequestException, ValueError) as e:
+            errors.append(f"amazon_searches: autocomplete failed for '{prefix}' ({e})")
+        time.sleep(0.5)
+    t = topic.lower()
+    return {
+        "topic_is_searched": any(s.startswith(t) or t.startswith(s) for s in suggestions),
+        "related_searches": suggestions[:10],
+    }, errors

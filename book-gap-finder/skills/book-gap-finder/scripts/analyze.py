@@ -113,3 +113,26 @@ def amazon_market_score(books, now=None):
         "titles_with_500plus_reviews": entrenched,
         "recent_titles_bsr_under_100k": recent_winners,
     }
+
+
+def category_openings(books, top_n=3):
+    """Sub-categories where a modest seller still ranks top-20.
+
+    For each Amazon sub-category an on-topic book sits in, find the weakest
+    overall sales rank (highest BSR) that still places top-20 there. The higher
+    that number, the easier it is for a new book to rank and earn visibility.
+    """
+    best = {}
+    for b in books:
+        if not b.get("on_topic", True) or not isinstance(b.get("bsr"), int):
+            continue
+        for cr in b.get("category_ranks") or []:
+            cat, pos = cr.get("category"), cr.get("rank")
+            if not cat or not isinstance(pos, int) or pos > 20:
+                continue
+            cur = best.get(cat)
+            if cur is None or b["bsr"] > cur["overall_rank_needed"]:
+                best[cat] = {"category": cat, "category_position": pos,
+                             "overall_rank_needed": b["bsr"], "example_title": b.get("title"),
+                             "example_url": b.get("url")}
+    return sorted(best.values(), key=lambda x: -x["overall_rank_needed"])[:top_n]
