@@ -51,6 +51,18 @@ def render_platform_finding(p):
     </div>"""
 
 
+def render_stakeholder(s):
+    url = s.get("evidence_url")
+    link = f'<a href="{esc(url)}">source</a>' if url else ""
+    return f"""
+    <div class="card stakeholder-card">
+      <h3>{esc(s.get("name", ""))} <span class="site-tag">{esc(s.get("type", ""))}</span></h3>
+      <p><strong>Role:</strong> {esc(s.get("role", ""))}</p>
+      <p><strong>Why they know what sells:</strong> {esc(s.get("why_they_know", ""))}</p>
+      <div class="footer">{link}</div>
+    </div>"""
+
+
 def render_source_proposal(s):
     return (
         f'<li><strong>{esc(s.get("name", ""))}</strong> '
@@ -140,7 +152,7 @@ table.toc td { border-bottom:1px solid #eee3d3; padding:.6rem .5rem; font-size:.
 .diff-notes { background:#fff; padding:1rem 1.25rem; border-radius:8px; font-size:.92rem; }
 .pick-card { border-left:4px solid #1f6f9c; background:#f4faff; }
 .platform-card { border-left:4px solid #8a4fae; }
-.repeat-check { font-size:.85rem; color:#5a5347; background:#eef6ea; border-radius:6px; padding:.6rem .9rem; margin-bottom:1rem; }
+.stakeholder-card { border-left:4px solid #9c6b1f; }
 """
 
 
@@ -157,15 +169,18 @@ def render_html(brief):
     picks = brief.get("top_3_picks") or []
     platform_findings = brief.get("platform_findings") or []
     proposed_sources = brief.get("proposed_new_sources") or []
-    repeat_check = brief.get("repeat_check") or {}
+    stakeholders = brief.get("stakeholders") or []
+    # brief["repeat_check"] / history bookkeeping is deliberately NOT rendered:
+    # the novelty check is internal (ledger.py), not something the reader needs.
 
-    repeat_html = ""
-    if repeat_check:
-        prior = ", ".join(repeat_check.get("prior_topics_checked_against") or [])
-        repeat_html = (
-            f'<div class="repeat-check">✓ Checked against {esc(len(repeat_check.get("prior_topics_checked_against") or []))} '
-            f'previously-scanned topic(s) ({esc(prior)}) — no repeats this run.</div>'
-        )
+    stakeholders_section = ""
+    if stakeholders:
+        stakeholders_section = f"""
+    <section>
+      <h2>Key Stakeholders</h2>
+      <p class="muted">People and organizations with first-hand context on what's selling in these topics — worth following, pitching, or reaching out to.</p>
+      {"".join(render_stakeholder(s) for s in stakeholders)}
+    </section>"""
 
     picks_section = ""
     if picks:
@@ -197,7 +212,6 @@ def render_html(brief):
     <div class="wrap">
     <h1>Self-Help &amp; Non-Fiction Market Gap Report</h1>
     <div class="subtitle-line">{esc(run_date)} · Topics scanned: {esc(topics)}</div>
-    {repeat_html}
     {f'<div class="summary">{esc(summary)}</div>' if summary else ''}
     {picks_section}
 
@@ -221,6 +235,7 @@ def render_html(brief):
       {render_toc(toc)}
       {f'<p class="diff-notes"><strong>Why this differs from what exists:</strong> {esc(diff)}</p>' if diff else ''}
     </section>
+    {stakeholders_section}
     {platforms_section}
     {proposed_sources_section}
     <section>

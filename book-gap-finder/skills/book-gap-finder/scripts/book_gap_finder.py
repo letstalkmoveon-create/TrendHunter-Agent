@@ -21,9 +21,10 @@ from pathlib import Path
 
 import analyze
 import sources
-from sources import ConfigError, BOOKSTORE_SITES, AUTHOR_PLATFORM_SITES, EXTENDED_SITES, ALL_SITES
+from sources import ConfigError, BOOKSTORE_SITES, AUTHOR_PLATFORM_SITES, EXTENDED_SITES, STAKEHOLDER_SITES, ALL_SITES
 
-DEFAULT_SITES = {**BOOKSTORE_SITES, **AUTHOR_PLATFORM_SITES}  # 12 bookstores + 9 author/social platforms
+# 12 bookstores + 9 author/social platforms + 5 stakeholder/trade sources
+DEFAULT_SITES = {**BOOKSTORE_SITES, **AUTHOR_PLATFORM_SITES, **STAKEHOLDER_SITES}
 
 
 def parse_args(argv=None):
@@ -37,9 +38,10 @@ def parse_args(argv=None):
     p.add_argument("--sites", default="",
                     help="Comma-separated site keys to limit to (default: all 12 bookstore sites + "
                          "9 author/social platform sites — reddit, quora, facebook, instagram, tiktok, "
-                         "draft2digital, bookbub, netgalley, reedsy). Pass a Tier-2 EXTENDED_SITES key "
-                         "(pinterest, medium, smashwords, writtenwordmedia, kobowritinglife, "
-                         "publishersweekly, kboards, absolutewrite, ingramspark) explicitly to include it.")
+                         "draft2digital, bookbub, netgalley, reedsy — plus 5 stakeholder/trade sources: "
+                         "publishersweekly, publishersmarketplace, nytbestsellers, applepodcasts, bookweb). "
+                         "Pass a Tier-2 EXTENDED_SITES key (pinterest, medium, smashwords, writtenwordmedia, "
+                         "kobowritinglife, kboards, absolutewrite, ingramspark) explicitly to include it.")
     p.add_argument("--skip", default="", help="Comma-separated sources to skip, e.g. 'youtube' or a site key.")
     return p.parse_args(argv)
 

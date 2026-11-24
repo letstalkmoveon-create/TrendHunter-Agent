@@ -84,13 +84,28 @@ EXTENDED_SITES = {
     "smashwords": "smashwords.com",
     "writtenwordmedia": "writtenwordmedia.com",
     "kobowritinglife": "kobowritinglife.com",
-    "publishersweekly": "publishersweekly.com",
     "kboards": "kboards.com",
     "absolutewrite": "absolutewrite.com",
     "ingramspark": "ingramspark.com",
 }
 
-ALL_SITES = {**BOOKSTORE_SITES, **AUTHOR_PLATFORM_SITES, **EXTENDED_SITES}
+# Stakeholder signal — run by default (added 2026-11-24). These are where the
+# people who decide and track what becomes a bestseller show up by name:
+# trade press (Publishers Weekly), deal announcements naming the literary agent,
+# acquiring editor and imprint for each new self-help/non-fiction book
+# (Publishers Marketplace), the NYT advice/how-to list, podcast episodes
+# where authors/hosts drive category sales (Apple Podcasts), and the
+# booksellers' trade association (ABA). Used to fill the brief's
+# `stakeholders` section; only names that appear in these results may be used.
+STAKEHOLDER_SITES = {
+    "publishersweekly": "publishersweekly.com",
+    "publishersmarketplace": "publishersmarketplace.com",
+    "nytbestsellers": "nytimes.com/books",
+    "applepodcasts": "podcasts.apple.com",
+    "bookweb": "bookweb.org",
+}
+
+ALL_SITES = {**BOOKSTORE_SITES, **AUTHOR_PLATFORM_SITES, **EXTENDED_SITES, **STAKEHOLDER_SITES}
 
 
 class ConfigError(Exception):

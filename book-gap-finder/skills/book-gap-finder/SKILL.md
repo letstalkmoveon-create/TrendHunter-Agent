@@ -3,8 +3,8 @@ name: book-gap-finder
 description: Researches the self-help and non-fiction book market across
   YouTube, Goodreads, and 10 other bookstore/review sites to find underserved
   pain points and market gaps, then proposes book concepts, titles, angles,
-  and a differentiated table of contents. Runs on a Monday/Wednesday schedule
-  and emails the report. Use when the user wants book market research,
+  and a differentiated table of contents, while tracking every prior run so
+  each report is new. Runs weekly on Mondays and emails the report. Use when the user wants book market research,
   content-gap analysis for non-fiction/self-help publishing, or a fresh
   round of book concept ideas.
 ---
@@ -53,13 +53,30 @@ unrelated topics just because a search returned them.
 
 ### 1. Resolve topics
 
-**Check `.book-gap-finder/topics_history.json` first.** It's an append-only
-log of every topic scanned by every prior run (gitignored, so it persists
-per-environment). Read it before picking anything. Do not repeat a topic
-that already appears there — the point of logging history is coverage that
-broadens over time, not a scan that re-confirms last week's findings. After
-this run writes `brief.json`, append this run's `topics_scanned` to that
-file (create it with `{"runs": []}` if it doesn't exist yet).
+**Read the research ledger first.** Every prior run's topics, trends, book
+concepts, angles, stakeholders and cited URLs are kept in `ledger.json` on the
+`research-history` git branch (not on `main`, and not in the gitignored
+`.book-gap-finder/` folder — cloud runs start from a fresh clone, so only
+something pushed to git survives between runs):
+
+```bash
+python3 book-gap-finder/skills/book-gap-finder/scripts/ledger.py pull --out ./.book-gap-finder/ledger.json
+python3 book-gap-finder/skills/book-gap-finder/scripts/ledger.py summary --ledger ./.book-gap-finder/ledger.json
+```
+
+Read the whole summary before choosing anything. Every run must deliver
+information that's new relative to all of it:
+
+- **Topics**: don't repeat or lightly reword a prior topic. Pick audience
+  segments and problems the ledger hasn't covered yet; when most segments
+  have been touched, go narrower (a sub-segment, a life event, a format)
+  rather than circling back.
+- **Trends, book concepts, angles**: never re-propose one already in the
+  ledger, even under a new title. If a prior finding genuinely shows up
+  again, it can only appear as a development with new evidence (e.g. a new
+  competing book launched, demand grew), never as a restatement.
+- **Stakeholders**: favor people/organizations not already listed in the
+  ledger; repeat one only if there's new evidence about them.
 
 Pick 3-6 specific search topics for this run — not the whole audience list
 verbatim, but concrete phrases people would actually search or that would
@@ -97,10 +114,29 @@ This hits YouTube plus 21 sites by default for every topic:
   they're closer to the reader's or author's own words than a retail
   listing is.
 
-A **Tier 2 "extended" set** of 9 more confirmed-working sites exists in
+- **5 stakeholder/trade sources** (added 2026-11-24) — Publishers Weekly,
+  Publishers Marketplace (deal announcements naming the agent, acquiring
+  editor and imprint), the NYT books/best-seller pages, Apple Podcasts, and
+  the American Booksellers Association (bookweb.org). These are where the
+  people who decide and track what becomes a bestseller appear by name;
+  they feed the brief's `stakeholders` section.
+
+After the fan-out, flag everything already cited by a prior run, so new
+evidence stands out:
+
+```bash
+python3 book-gap-finder/skills/book-gap-finder/scripts/ledger.py mark-seen \
+  --ledger ./.book-gap-finder/ledger.json \
+  --ranked "./.book-gap-finder/$(date +%Y-%m-%d)/ranked.json"
+```
+
+Items marked `"seen_before": true` were already cited in a prior report.
+Build this run's findings on `seen_before: false` evidence; use previously
+seen items only as context or to show something has changed.
+
+A **Tier 2 "extended" set** of 8 more confirmed-working sites exists in
 `sources.py` (`EXTENDED_SITES`: Pinterest, Medium, Smashwords, Written Word
-Media, Kobo Writing Life, Publishers Weekly, KBoards, AbsoluteWrite,
-IngramSpark) — lower reader-demand signal density (more author-craft/forum
+Media, Kobo Writing Life, KBoards, AbsoluteWrite, IngramSpark) — lower reader-demand signal density (more author-craft/forum
 chatter and trade content), not run by default. Pass their keys via
 `--sites` for a deeper, slower pass when a run specifically calls for it.
 
@@ -157,10 +193,6 @@ are fixed requirements, not suggestions:
 {
   "run_date": "2026-08-24",
   "topics_scanned": ["growth mindset habits", "..."],
-  "repeat_check": {
-    "prior_topics_checked_against": ["growth mindset habits (2026-08-21)", "..."],
-    "confirmed_no_repeats": true
-  },
   "summary": "2-3 sentences on the strongest opportunity this run surfaced.",
   "top_3_picks": [
     {"title": "...", "subtitle": "...",
@@ -182,6 +214,13 @@ are fixed requirements, not suggestions:
     {"chapter": 1, "title": "...", "description": "..."}
   ],
   "differentiation_notes": "How this TOC differs from what's already on shelves, specifically — name what existing books do instead.",
+  "stakeholders": [
+    {"name": "A specific named person or organization from ranked.json",
+     "type": "literary agent | acquiring editor | imprint/publisher | bestseller-list / trade press | bookseller | author | creator / podcaster | reader community",
+     "role": "What they do, in one line (e.g. 'Agent who sold X to Y imprint in 2026').",
+     "why_they_know": "Why they have first-hand context on what sells in this run's topics.",
+     "evidence_url": "The ranked.json URL where they appear."}
+  ],
   "platform_findings": [
     {"platform": "Instagram", "high_demand": "What's visibly getting engagement/pushed right now.",
      "gap": "What's missing or weak in that demand.",
@@ -210,9 +249,37 @@ meaningfully-cited link from `ranked.json`, not just the top handful — this
 list is the audit trail the user asked for. `platform_findings` only needs
 entries for the author/social platform sites actually scanned this run
 (skip it, or omit the field, on a run that only used the 12 bookstore
-sites). `proposed_new_sources` and `repeat_check` are optional but should be
-included whenever this run checked new sources or topic history —
-omit them on a routine run where nothing changed from last time.
+sites). `proposed_new_sources` is optional — include it only when this run
+found a source worth adding.
+
+**Stakeholders** — 4-8 entries: the people and organizations with real
+context on what sells in this run's topics. Draw on the stakeholder/trade
+sources first (agents, acquiring editors and imprints named in Publishers
+Marketplace deals and PW coverage; bestseller-list and trade-press
+coverage), then the authors behind the dominant competing titles, the
+creators/podcasters driving demand, and the reader communities (named
+subreddits, Facebook groups) where the pain point is discussed. Every name
+must appear in `ranked.json` with its URL — **never invent or guess a
+person's name or role**. If the trade sources returned nothing usable for a
+topic, list fewer entries rather than padding.
+
+**Keep the email reader-facing.** The `summary` and every other field are
+findings only. Don't mention the ledger, prior runs, repeat checks, tests,
+validation runs, queued batches, or how this run fits into the schedule —
+the novelty check happens behind the scenes and isn't part of the report.
+
+**Check novelty before rendering:**
+
+```bash
+python3 book-gap-finder/skills/book-gap-finder/scripts/ledger.py check \
+  --ledger ./.book-gap-finder/ledger.json \
+  --brief "./.book-gap-finder/$(date +%Y-%m-%d)/brief.json"
+```
+
+If it reports overlap (exit code 1), revise the flagged topics, trends or
+concept titles until it passes. The check is a mechanical word-overlap
+backstop — it doesn't replace your own reading of the ledger summary for
+ideas that repeat under different wording.
 
 ### 5. Render and send
 
@@ -234,10 +301,28 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/book-gap-finder/scripts/send_email.py" \
   --html "./.book-gap-finder/$(date +%Y-%m-%d)/report.html"
 ```
 
-This runs on a Monday/Wednesday cloud schedule with no human review in the
+This runs on a weekly Monday cloud schedule with no human review in the
 loop before sending — which is exactly why steps 3-4's sourcing discipline
 (never fabricate, cite everything) matters more here than in a skill someone
 reviews before sharing.
+
+### 6. Record this run in the ledger
+
+After the email sends, add this run to the running tally and push it, so
+next week's run builds on it:
+
+```bash
+python3 book-gap-finder/skills/book-gap-finder/scripts/ledger.py append \
+  --ledger ./.book-gap-finder/ledger.json \
+  --brief "./.book-gap-finder/$(date +%Y-%m-%d)/brief.json"
+python3 book-gap-finder/skills/book-gap-finder/scripts/ledger.py push \
+  --ledger ./.book-gap-finder/ledger.json
+```
+
+`push` commits only `ledger.json` to the `research-history` branch — never
+push anything to `main`. If the push fails, say so plainly in your final
+run report (not in the email): that run's research won't be in the tally
+until it's fixed.
 
 ## Notes
 
