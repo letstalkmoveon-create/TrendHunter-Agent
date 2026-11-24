@@ -331,7 +331,7 @@ concepts. Where the same reader would plausibly buy both, fill
 `series_link`. Several short books for one reader cross-sell each other on
 Amazon; that's worth flagging but never forced.
 
-**Stakeholders** — 4-8 entries: the people and organizations with real
+**Stakeholders** — 4-6 entries: the people and organizations with real
 context on what sells in this run's topics. Draw on the stakeholder/trade
 sources first (agents, acquiring editors and imprints named in Publishers
 Marketplace deals and PW coverage; bestseller-list and trade-press
