@@ -77,6 +77,16 @@ information that's new relative to all of it:
   competing book launched, demand grew), never as a restatement.
 - **Stakeholders**: favor people/organizations not already listed in the
   ledger; repeat one only if there's new evidence about them.
+- **Segment rotation**: the summary ends with an audience-segment coverage
+  table, least-covered first. At least half of this run's topics must come
+  from the bottom-coverage segments (the top of that list). Record the
+  segments you chose in the brief's `segments` field using the exact names
+  from that table.
+- **Publishing calendar**: self-help demand peaks in January (new-year
+  habits, weight, money, fresh starts), again at back-to-routine in
+  September, with smaller bumps before Mother's/Father's Day and graduation
+  (gift buying). If a peak is 2-5 months out, favor at least one topic that
+  fits it — that's the window to write and launch in time.
 
 Pick 3-6 specific search topics for this run — not the whole audience list
 verbatim, but concrete phrases people would actually search or that would
@@ -120,6 +130,20 @@ This hits YouTube plus 21 sites by default for every topic:
   the American Booksellers Association (bookweb.org). These are where the
   people who decide and track what becomes a bestseller appear by name;
   they feed the brief's `stakeholders` section.
+
+- **Amazon sales evidence** (added 2026-11-24, Apify `junglee/amazon-crawler`
+  and `junglee/amazon-bestsellers`, same `APIFY_API_TOKEN`). For each topic,
+  `ranked.json` → `amazon[topic]` holds the top ~10 Amazon book results with
+  Best Seller Rank (`bsr`, overall Books rank — lower is better), review
+  count, stars and star breakdown, price, publication date, Amazon's own
+  review summary and `review_complaints` (the negative/mixed themes readers
+  raise), plus an `on_topic` flag (search padding like coloring books is
+  marked false) and a `market` score computed from on-topic books only.
+  `amazon_lists` holds the current Self-Help Best Sellers and New Releases
+  (top 20 each). This is the "do people actually pay for this" signal the
+  other sources can't give. Rough KDP rules of thumb: BSR under ~20k ≈ 10+
+  copies a day, under ~100k ≈ 1+ a day, over ~300k ≈ rarely sells; a title
+  with 500+ reviews is entrenched.
 
 After the fan-out, flag everything already cited by a prior run, so new
 evidence stands out:
@@ -173,10 +197,23 @@ address at all; what new problems show up only after someone's already tried
 the existing solutions; and what sub-segments of the audience the mainstream
 titles ignore entirely.
 
+Use `review_complaints` and each competitor's review summary as first-class
+Part 2 evidence: a theme readers raise about a book that *sells* ("too
+generic," "no practical steps," "written for a different reader") is the
+market telling you exactly what the next book should fix. Read `on_topic`
+critically too — it's a word-match, not judgment; ignore any book that isn't
+really a competitor.
+
 **Part 3 — Prioritize.** Rank the gaps you found by how strong an opportunity
 each represents: how intense and common the pain is, how weak the existing
 competition's answer is, and how clearly it maps to one of this skill's
-target audience segments.
+target audience segments. **Sales evidence outranks buzz**: a topic whose
+`market.verdict` is "weak demand" (nobody buys the current books) can't be
+the lead recommendation however loud it is on YouTube or Reddit, and a
+"saturated" topic needs a sharply narrower sub-segment to qualify. Favor
+"winnable" topics — books are selling, few are entrenched, and a recent
+title has broken in. Check `amazon_lists` for any concept-adjacent title
+climbing Best Sellers or New Releases; that's rising demand.
 
 **Never fabricate a quote, title, or number** — everything must trace back to
 an item in `ranked.json` with its URL kept for citation. **Avoid plagiarism,
@@ -194,6 +231,26 @@ are fixed requirements, not suggestions:
   "run_date": "2026-08-24",
   "topics_scanned": ["growth mindset habits", "..."],
   "summary": "2-3 sentences on the strongest opportunity this run surfaced.",
+  "segments": ["exact segment names from the ledger coverage table"],
+  "recommendation": {
+    "title": "Must match one of the book_concepts titles exactly.",
+    "subtitle": "...",
+    "verdict": "Go | Test first | Pass",
+    "one_line": "The single sentence the reader should remember: what to write and why now.",
+    "scorecard": [
+      {"factor": "Demand", "grade": "Strong | Moderate | Weak", "note": "From Amazon BSRs of on-topic books — cite the ranks."},
+      {"factor": "Competition", "grade": "Open | Contested | Crowded", "note": "How many entrenched titles (500+ reviews), and whether a recent title broke in."},
+      {"factor": "Evidence", "grade": "Strong | Moderate | Thin", "note": "How many independent sources show the pain point, including review complaints."},
+      {"factor": "Timing", "grade": "Now | Soon | Evergreen", "note": "Which seasonal peak it fits and the latest date to start writing to hit it."}
+    ],
+    "validation_piece": "One free piece to publish first to test interest before writing the whole book (e.g. a post, short video, or lead magnet) — what it is and what response would mean go.",
+    "next_steps": ["3 concrete actions for the next 30 days"]
+  },
+  "amazon_market": [
+    {"topic": "...", "verdict": "copy market.verdict", "median_bsr": 0, "best_bsr": 0,
+     "entrenched_titles": 0, "reader_complaints": "Top recurring complaints about the best-selling competitors, in plain words.",
+     "comp_titles": [{"title": "...", "bsr": 0, "reviews": 0, "year": "2025", "url": "..."}]}
+  ],
   "top_3_picks": [
     {"title": "...", "subtitle": "...",
      "pitch": "1-2 plain-language sentences a non-publishing person could read and immediately get it — what the book is and who it's for.",
@@ -204,7 +261,9 @@ are fixed requirements, not suggestions:
   ],
   "book_concepts": [
     {"title": "...", "subtitle": "...", "target_audience": "...",
-     "core_promise": "...", "market_gap": "...", "evidence_urls": ["..."]}
+     "core_promise": "...", "market_gap": "...", "evidence_urls": ["..."],
+     "timing": "Which seasonal window this fits (or 'Evergreen').",
+     "series_link": "Optional: the prior concept title (from the ledger list) this could pair with as a series, and why the same reader buys both. Omit if none fits."}
   ],
   "angles": [
     {"name": "...", "description": "...", "why_it_sells": "...",
@@ -251,6 +310,26 @@ entries for the author/social platform sites actually scanned this run
 (skip it, or omit the field, on a run that only used the 12 bookstore
 sites). `proposed_new_sources` is optional — include it only when this run
 found a source worth adding.
+
+**Recommendation** — the reader's first stop, so it has to stand on its
+own: one book, a verdict, and a four-row scorecard whose notes cite real
+numbers from `amazon` (BSRs, review counts, years). "Go" needs Strong or
+Moderate demand and Open or Contested competition; use "Test first" when the
+demand data is mixed (then the `validation_piece` is the deciding test), and
+"Pass" only if no concept this run clears the bar — say what would change
+that. `top_3_picks` should still include the recommended title.
+
+**Amazon market** — one entry per topic scanned, straight from
+`ranked.json` → `amazon`: copy the numbers, list 2-4 on-topic comp titles
+(prefer ones published in the last 3 years that sell well — those are the
+proof a newcomer can win), and summarize the recurring reader complaints. If
+Amazon data failed for a topic, include the entry with `"verdict": "no data"`
+and say so in `reader_complaints` rather than guessing.
+
+**Series links** — check each new concept against the ledger's list of prior
+concepts. Where the same reader would plausibly buy both, fill
+`series_link`. Several short books for one reader cross-sell each other on
+Amazon; that's worth flagging but never forced.
 
 **Stakeholders** — 4-8 entries: the people and organizations with real
 context on what sells in this run's topics. Draw on the stakeholder/trade

@@ -41,6 +41,54 @@ def render_pick(i, p):
     </div>"""
 
 
+VERDICT_COLORS = {"go": "#2f6f4f", "test first": "#b5851d", "pass": "#9c2f2f"}
+
+
+def render_recommendation(r):
+    if not r:
+        return ""
+    color = VERDICT_COLORS.get((r.get("verdict") or "").strip().lower(), "#5a5347")
+    rows = "".join(
+        f'<tr><td class="sc-factor">{esc(f.get("factor"))}</td>'
+        f'<td class="sc-grade">{esc(f.get("grade"))}</td><td>{esc(f.get("note"))}</td></tr>'
+        for f in r.get("scorecard") or []
+    )
+    steps = "".join(f"<li>{esc(x)}</li>" for x in r.get("next_steps") or [])
+    return f"""
+    <section>
+      <h2>Recommended Book This Week</h2>
+      <div class="card rec-card">
+        <span class="verdict" style="background:{color}">{esc(r.get("verdict"))}</span>
+        <h3>{esc(r.get("title"))}</h3>
+        <p class="subtitle">{esc(r.get("subtitle"))}</p>
+        <p><strong>{esc(r.get("one_line"))}</strong></p>
+        <table class="scorecard">{rows}</table>
+        {f'<p><strong>Test it first:</strong> {esc(r.get("validation_piece"))}</p>' if r.get("validation_piece") else ""}
+        {f'<p><strong>Next 30 days:</strong></p><ol class="steps">{steps}</ol>' if steps else ""}
+      </div>
+    </section>"""
+
+
+def _fmt_rank(n):
+    return f"#{n:,}" if isinstance(n, int) else esc(n or "—")
+
+
+def render_market(m):
+    comps = "".join(
+        f'<li><a href="{esc(c.get("url"))}">{esc(c.get("title"))}</a> — BSR {_fmt_rank(c.get("bsr"))}, '
+        f'{esc(c.get("reviews"))} reviews, {esc(c.get("year"))}</li>'
+        for c in m.get("comp_titles") or []
+    )
+    return f"""
+    <div class="card market-card">
+      <h3>{esc(m.get("topic"))} <span class="site-tag">{esc(m.get("verdict"))}</span></h3>
+      <p class="muted">Median rank {_fmt_rank(m.get("median_bsr"))} · best {_fmt_rank(m.get("best_bsr"))} ·
+         {esc(m.get("entrenched_titles", 0))} entrenched title(s) with 500+ reviews</p>
+      <p><strong>What readers complain about:</strong> {esc(m.get("reader_complaints"))}</p>
+      {f'<ul class="comps">{comps}</ul>' if comps else ""}
+    </div>"""
+
+
 def render_platform_finding(p):
     return f"""
     <div class="card platform-card">
@@ -92,6 +140,8 @@ def render_concept(i, c):
       <p><strong>Audience:</strong> {esc(c.get("target_audience", ""))}</p>
       <p><strong>Core promise:</strong> {esc(c.get("core_promise", ""))}</p>
       <p><strong>Market gap:</strong> {esc(c.get("market_gap", ""))}</p>
+      {f'<p><strong>Timing:</strong> {esc(c.get("timing"))}</p>' if c.get("timing") else ""}
+      {f'<p><strong>Series potential:</strong> {esc(c.get("series_link"))}</p>' if c.get("series_link") else ""}
       <div class="footer">{links}</div>
     </div>"""
 
@@ -153,6 +203,17 @@ table.toc td { border-bottom:1px solid #eee3d3; padding:.6rem .5rem; font-size:.
 .pick-card { border-left:4px solid #1f6f9c; background:#f4faff; }
 .platform-card { border-left:4px solid #8a4fae; }
 .stakeholder-card { border-left:4px solid #9c6b1f; }
+.rec-card { border:2px solid #2a2621; background:#fffdf7; }
+.rec-card h3 { font-size:1.3rem; margin-top:.5rem; }
+.verdict { display:inline-block; color:#fff; font-size:.75rem; font-weight:bold; text-transform:uppercase; letter-spacing:.05em; padding:.2rem .6rem; border-radius:4px; }
+table.scorecard { width:100%; border-collapse:collapse; margin:.6rem 0; font-size:.88rem; }
+table.scorecard td { border-top:1px solid #eee3d3; padding:.45rem .4rem; vertical-align:top; }
+.sc-factor { font-weight:bold; width:6.5rem; }
+.sc-grade { width:6rem; color:#b5651d; font-weight:bold; }
+.steps { margin:.2rem 0 0 1.2rem; padding:0; font-size:.92rem; }
+.market-card { border-left:4px solid #c08a1e; }
+.comps { font-size:.85rem; padding-left:1.1rem; margin:.4rem 0 0; }
+.comps a { color:#b5651d; }
 """
 
 
@@ -170,6 +231,16 @@ def render_html(brief):
     platform_findings = brief.get("platform_findings") or []
     proposed_sources = brief.get("proposed_new_sources") or []
     stakeholders = brief.get("stakeholders") or []
+    recommendation_section = render_recommendation(brief.get("recommendation"))
+    market = brief.get("amazon_market") or []
+    market_section = ""
+    if market:
+        market_section = f"""
+    <section>
+      <h2>Amazon Market Check</h2>
+      <p class="muted">Best Seller Rank is Amazon's sales rank (lower sells more): under ~20,000 is roughly 10+ copies a day, over ~300,000 rarely sells.</p>
+      {"".join(render_market(m) for m in market)}
+    </section>"""
     # brief["repeat_check"] / history bookkeeping is deliberately NOT rendered:
     # the novelty check is internal (ledger.py), not something the reader needs.
 
@@ -213,7 +284,9 @@ def render_html(brief):
     <h1>Self-Help &amp; Non-Fiction Market Gap Report</h1>
     <div class="subtitle-line">{esc(run_date)} · Topics scanned: {esc(topics)}</div>
     {f'<div class="summary">{esc(summary)}</div>' if summary else ''}
+    {recommendation_section}
     {picks_section}
+    {market_section}
 
     <section>
       <h2>5 High-Demand Trends</h2>

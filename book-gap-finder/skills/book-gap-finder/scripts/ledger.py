@@ -92,6 +92,31 @@ def cmd_pull(args):
     print(out)
 
 
+# The 12 audience segments the report serves, with keywords used to classify
+# older runs that predate the explicit "segments" field.
+SEGMENTS = {
+    "self-development": ["self", "habit", "discipline", "procrastinat", "productiv", "purpose"],
+    "growth mindset": ["mindset", "growth", "resilien", "confidence", "imposter"],
+    "adults / life transitions": ["midlife", "retire", "empty nest", "caregiver", "aging", "downsiz", "over 50", "over 40"],
+    "entrepreneurs": ["entrepreneur", "founder", "startup", "solopreneur", "side hustle", "creator"],
+    "small business owners": ["small business", "business owner", "one-person"],
+    "singles": ["dating", "single", "divorce", "breakup", "after 40"],
+    "couples": ["couple", "marriage", "relationship", "partner", "blended", "stepfamily"],
+    "healthy eaters": ["meal", "eating", "nutrition", "diet", "weight", "food", "menopause"],
+    "mental health": ["anxiety", "burnout", "depress", "stress", "trauma", "emotional", "overthink", "lonel"],
+    "change seekers / new mindset": ["reinvent", "starting over", "career change", "new chapter", "change"],
+    "real estate investors": ["real estate", "landlord", "rental", "investor", "property", "flip"],
+    "homeowners": ["homebuyer", "home buyer", "homeowner", "mortgage", "house"],
+}
+
+
+def _segments_for(run):
+    if run.get("segments"):
+        return run["segments"]
+    text = " ".join(run.get("topics", [])).lower()
+    return [seg for seg, kws in SEGMENTS.items() if any(k in text for k in kws)]
+
+
 def cmd_summary(args):
     runs = _load(args.ledger).get("runs", [])
     if not runs:
@@ -115,6 +140,23 @@ def cmd_summary(args):
             print("  stakeholders: " + "; ".join(f"{s.get('name')} ({s.get('type')})" for s in r["stakeholders"]))
     print(f"\n{len(urls)} distinct source URLs cited across all prior runs "
           "(run mark-seen to flag them in this run's ranked.json).")
+
+    counts = {seg: 0 for seg in SEGMENTS}
+    last = {seg: "" for seg in SEGMENTS}
+    for r in runs:
+        for seg in _segments_for(r):
+            if seg in counts:
+                counts[seg] += 1
+                last[seg] = max(last[seg], r.get("run_date", ""))
+    print("\nAudience-segment coverage (least covered first — favor the top of this list):")
+    for seg in sorted(SEGMENTS, key=lambda g: (counts[g], last[g])):
+        print(f"  {counts[seg]:>2} run(s)  last {last[seg] or 'never':<10}  {seg}")
+
+    concepts = [(r.get("run_date"), c.get("title")) for r in runs for c in r.get("concepts", [])]
+    if concepts:
+        print("\nPrior book concepts available for series links (title, first proposed):")
+        for d, t in sorted(concepts, key=lambda x: x[1] or ""):
+            print(f"  {t}  ({d})")
 
 
 def cmd_mark_seen(args):
@@ -183,6 +225,8 @@ def _record(brief):
         "run_date": brief.get("run_date"),
         "topics": brief.get("topics_scanned", []),
         "summary": brief.get("summary", ""),
+        "segments": brief.get("segments", []),
+        "recommended": (brief.get("recommendation") or {}).get("title", ""),
         "trend_titles": [t.get("title", "") for t in brief.get("trends", [])],
         "concepts": [{"title": c.get("title", ""), "subtitle": c.get("subtitle", "")}
                      for c in brief.get("book_concepts", [])],

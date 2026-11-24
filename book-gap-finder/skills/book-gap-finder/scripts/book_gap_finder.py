@@ -42,7 +42,10 @@ def parse_args(argv=None):
                          "publishersweekly, publishersmarketplace, nytbestsellers, applepodcasts, bookweb). "
                          "Pass a Tier-2 EXTENDED_SITES key (pinterest, medium, smashwords, writtenwordmedia, "
                          "kobowritinglife, kboards, absolutewrite, ingramspark) explicitly to include it.")
-    p.add_argument("--skip", default="", help="Comma-separated sources to skip, e.g. 'youtube' or a site key.")
+    p.add_argument("--skip", default="",
+                    help="Comma-separated sources to skip, e.g. 'youtube', 'amazon_sales', 'amazon_lists', or a site key.")
+    p.add_argument("--amazon-results", type=int, default=10,
+                    help="Per-topic Amazon book results to pull with sales rank and reviews (default 10).")
     return p.parse_args(argv)
 
 
@@ -63,6 +66,7 @@ def main(argv=None):
         sites = dict(DEFAULT_SITES)
 
     all_youtube = []
+    amazon_by_topic = {}
     all_bookstore_by_site = {k: [] for k in sites}
     all_errors = []
 
@@ -82,6 +86,15 @@ def main(argv=None):
             except ConfigError as e:
                 all_errors.append(f"youtube: {e}")
                 print(f"    youtube: SKIPPED — {e}", file=sys.stderr)
+
+        if "amazon_sales" not in skip:
+            try:
+                items, errors = sources.fetch_amazon(topic, limit=args.amazon_results)
+                amazon_by_topic[topic] = {"market": analyze.amazon_market_score(items), "books": items}
+                all_errors.extend(errors)
+                print(f"    amazon_sales: {len(items)} books, verdict {amazon_by_topic[topic]['market']['verdict']}", file=sys.stderr)
+            except ConfigError as e:
+                all_errors.append(f"amazon_sales: {e}")
 
         for site_key, domain in sites.items():
             if site_key in skip:
@@ -108,6 +121,16 @@ def main(argv=None):
         bookstore_items_by_site=all_bookstore_by_site,
         errors=all_errors,
     )
+
+    report["amazon"] = amazon_by_topic
+    report["amazon_lists"] = {}
+    if "amazon_lists" not in skip:
+        try:
+            lists, errors = sources.fetch_amazon_lists()
+            report["amazon_lists"] = lists
+            report["errors"].extend(errors)
+        except ConfigError as e:
+            report["errors"].append(f"amazon_lists: {e}")
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

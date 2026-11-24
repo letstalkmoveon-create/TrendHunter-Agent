@@ -10,6 +10,7 @@ that synthesis is Claude's job per the SKILL.md workflow.
 """
 
 import math
+import re
 from datetime import datetime, timezone
 
 import sources
@@ -69,4 +70,46 @@ def build_report(niche, youtube_items, bookstore_items_by_site, errors, now=None
         "site_counts": site_counts,
         "topic_frequency": topics,
         "errors": errors,
+    }
+
+
+def _pub_year(s):
+    m = re.search(r"(\d{4})", s or "")
+    return int(m.group(1)) if m else None
+
+
+def amazon_market_score(books, now=None):
+    """Demand-vs-competition read for one topic's top Amazon results.
+
+    Thresholds are rules of thumb used by KDP authors, not exact sales figures:
+    an overall Books BSR under ~20k is roughly 10+ copies/day, under ~100k
+    roughly 1+/day; 500+ reviews marks an entrenched title.
+    """
+    now = now or datetime.now(timezone.utc)
+    books = [b for b in books if b.get("on_topic", True)]
+    ranked = [b for b in books if isinstance(b.get("bsr"), int)]
+    bsrs = sorted(b["bsr"] for b in ranked)
+    if not bsrs:
+        return {"verdict": "no data", "books_checked": len(books)}
+    median = bsrs[len(bsrs) // 2]
+    selling = sum(1 for r in bsrs if r <= 20000)
+    entrenched = sum(1 for b in books if (b.get("reviews") or 0) >= 500)
+    recent_winners = sum(1 for b in ranked
+                         if b["bsr"] <= 100000 and (_pub_year(b.get("publication_date")) or 0) >= now.year - 2)
+    if median > 150000 and selling == 0:
+        verdict = "weak demand"
+    elif entrenched >= 7:
+        verdict = "saturated"
+    elif selling >= 2 and entrenched <= 4 and recent_winners >= 1:
+        verdict = "winnable"
+    else:
+        verdict = "contested"
+    return {
+        "verdict": verdict,
+        "books_checked": len(books),
+        "median_bsr": median,
+        "best_bsr": bsrs[0],
+        "titles_bsr_under_20k": selling,
+        "titles_with_500plus_reviews": entrenched,
+        "recent_titles_bsr_under_100k": recent_winners,
     }

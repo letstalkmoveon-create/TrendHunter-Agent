@@ -144,7 +144,7 @@ def fetch_youtube(query, limit=15, timeframe="month"):
         resp.raise_for_status()
         raw = resp.json()
     except requests.RequestException as e:
-        return [], [f"youtube: Apify run failed ({e})"]
+        return [], [f"youtube: Apify run failed ({_redact(e)})"]
 
     items = []
     for d in raw:
@@ -272,3 +272,119 @@ def topic_frequency(all_items, min_count=2, top_n=25):
     ]
     ranked.sort(key=lambda x: (-x["count"], -len(x["sources"])))
     return ranked[:top_n]
+
+
+# ---------------------------------------------------------------------------
+# Amazon sales evidence — Apify junglee/amazon-crawler (same APIFY_API_TOKEN)
+# Best Seller Rank, review counts, star breakdown, publication date and
+# Amazon's own review summary for the top book results of each topic. This is
+# what turns "people talk about it" into "people pay for it".
+# ---------------------------------------------------------------------------
+
+# Movers & Shakers isn't supported by the bestsellers actor (tested 2026-11-24).
+AMAZON_SELF_HELP_LISTS = {
+    "best_sellers": "https://www.amazon.com/Best-Sellers-Books-Self-Help/zgbs/books/4736",
+    "new_releases": "https://www.amazon.com/gp/new-releases/books/4736",
+}
+
+
+def _redact(e):
+    """Apify puts the token in the request URL; keep it out of error text."""
+    return re.sub(r"token=[^&\s)]+", "token=REDACTED", str(e))
+
+
+def _amazon_run(start_urls, max_items):
+    token = _require_env(
+        "APIFY_API_TOKEN",
+        "Get a free token at https://console.apify.com/settings/integrations",
+    )
+    url = f"{APIFY_BASE}/acts/junglee~amazon-crawler/run-sync-get-dataset-items"
+    run_input = {
+        "categoryOrProductUrls": [{"url": u} for u in start_urls],
+        "maxItemsPerStartUrl": max_items,
+        "scrapeProductDetails": True,
+    }
+    resp = requests.post(url, params={"token": token}, json=run_input, timeout=300)
+    if resp.status_code == 401:
+        raise ConfigError("APIFY_API_TOKEN was rejected (401). Double-check the token value.")
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _amazon_item(d):
+    ranks = d.get("bestsellerRanks") or []
+    overall = next((r.get("rank") for r in ranks if (r.get("category") or "").startswith("Books")), None)
+    if overall is None:
+        overall = next((r.get("rank") for r in ranks if "Kindle Store" in (r.get("category") or "")), None)
+    pub = next((a.get("value") for a in (d.get("attributes") or [])
+                if (a.get("key") or "").lower().startswith("publication date")), None)
+    ai = d.get("aiReviewsSummary") or {}
+    complaints = [
+        {"theme": k.get("name"), "sentiment": k.get("sentiment"), "text": k.get("text")}
+        for k in (ai.get("keywords") or []) if (k.get("sentiment") or "").lower() in ("negative", "mixed")
+    ]
+    price = d.get("price") or {}
+    return {
+        "source": "amazon_sales",
+        "title": d.get("title") or "",
+        "author": d.get("author"),
+        "url": d.get("url"),
+        "asin": d.get("asin"),
+        "bsr": overall,
+        "category_ranks": [{"rank": r.get("rank"), "category": r.get("category")} for r in ranks[1:4]],
+        "reviews": d.get("reviewsCount") or 0,
+        "stars": d.get("stars"),
+        "stars_breakdown": d.get("starsBreakdown"),
+        "price": price.get("value") if isinstance(price, dict) else price,
+        "publication_date": pub,
+        "review_summary": ai.get("text"),
+        "review_complaints": complaints,
+        "engagement": 0,
+    }
+
+
+def fetch_amazon(query, limit=10):
+    """Top `limit` Amazon book results for `query`, with sales-rank evidence."""
+    from urllib.parse import quote_plus
+    # Department filters (i=stripbooks, rh=n:283155) make Amazon fall back to generic
+    # bestsellers for many queries; a plain search with "book" appended stays on topic.
+    search = f"https://www.amazon.com/s?k={quote_plus(query + ' book')}"
+    try:
+        raw = _amazon_run([search], limit)
+    except requests.RequestException as e:
+        return [], [f"amazon_sales: Apify run failed for '{query}' ({_redact(e)})"]
+    items = [_amazon_item(d) for d in raw if isinstance(d, dict) and d.get("title")]
+    # Amazon search pads results with loosely related bestsellers (coloring books
+    # for "money anxiety"); flag them so the market score only uses on-topic books.
+    stems = {w[:5] for w in re.findall(r"[a-z]+", query.lower()) if len(w) > 3 and w not in _STOPWORDS}
+    for i, d in zip(items, [d for d in raw if isinstance(d, dict) and d.get("title")]):
+        text = " ".join(str(d.get(k) or "") for k in ("title", "bookDescription", "description")).lower()
+        words = {w[:5] for w in re.findall(r"[a-z]+", text)}
+        i["on_topic"] = len(stems & words) >= min(2, len(stems))
+    return items, []
+
+
+def fetch_amazon_lists(limit=20):
+    """Self-Help Best Sellers and New Releases (top `limit` each) — what's
+    selling right now and which new titles broke in, via junglee/amazon-bestsellers."""
+    token = _require_env("APIFY_API_TOKEN", "Get a free token at https://console.apify.com/settings/integrations")
+    url = f"{APIFY_BASE}/acts/junglee~amazon-bestsellers/run-sync-get-dataset-items"
+    run_input = {"categoryUrls": list(AMAZON_SELF_HELP_LISTS.values()), "maxItemsPerStartUrl": limit}
+    try:
+        resp = requests.post(url, params={"token": token}, json=run_input, timeout=300)
+        resp.raise_for_status()
+        raw = resp.json()
+    except requests.RequestException as e:
+        return {}, [f"amazon_lists: Apify run failed ({_redact(e)})"]
+    by_url = {v: k for k, v in AMAZON_SELF_HELP_LISTS.items()}
+    out = {k: [] for k in AMAZON_SELF_HELP_LISTS}
+    for d in raw:
+        key = by_url.get(d.get("input"))
+        if key and not d.get("error"):
+            price = d.get("price") or {}
+            out[key].append({
+                "source": "amazon_" + key, "position": d.get("position"), "title": d.get("name") or "",
+                "url": d.get("url"), "stars": d.get("stars"),
+                "price": price.get("value") if isinstance(price, dict) else price,
+            })
+    return out, []
