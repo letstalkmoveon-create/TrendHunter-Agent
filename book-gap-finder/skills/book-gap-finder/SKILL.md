@@ -342,6 +342,24 @@ must appear in `ranked.json` with its URL — **never invent or guess a
 person's name or role**. If the trade sources returned nothing usable for a
 topic, list fewer entries rather than padding.
 
+**Keep it digestible.** The email has two layers. The top — summary,
+Recommended Book (verdict, scorecard, test, next steps) and two "Also worth
+a look" one-liners — must be readable in about two minutes and enough on its
+own to act on. Everything below the divider is reference. So:
+
+- Plain words a non-publishing person understands; no jargon without a
+  short gloss (say "Amazon sales rank," not just "BSR").
+- One idea per sentence; no stacked qualifiers, no repeating a point the
+  recommendation already made.
+- Word caps (render.py prints a LENGTH WARNING for each overrun — trim and
+  re-render until there are none): summary 45; recommendation one_line 30,
+  each scorecard note 20, validation_piece 40, each next step 18; each pick
+  pitch 30; trend description 45; concept core_promise 30 and market_gap
+  35; angle description 40; chapter description 20; stakeholder
+  why_they_know 25; amazon_market reader_complaints 25.
+- At most 6 stakeholders, at most 3 platform_findings, at most 2 comp
+  titles per topic in `amazon_market`.
+
 **Keep the email reader-facing.** The `summary` and every other field are
 findings only. Don't mention the ledger, prior runs, repeat checks, tests,
 validation runs, queued batches, or how this run fits into the schedule —

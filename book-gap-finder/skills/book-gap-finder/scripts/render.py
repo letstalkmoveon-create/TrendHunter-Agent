@@ -89,6 +89,60 @@ def render_market(m):
     </div>"""
 
 
+def render_market_table(market):
+    rows = ""
+    for m in market:
+        comps = "; ".join(
+            f'<a href="{esc(c.get("url"))}">{esc(c.get("title"))}</a> ({_fmt_rank(c.get("bsr"))})'
+            for c in (m.get("comp_titles") or [])[:2]
+        )
+        rows += (f'<tr><td><strong>{esc(m.get("topic"))}</strong><br><span class="site-tag">{esc(m.get("verdict"))}</span></td>'
+                 f'<td>{_fmt_rank(m.get("best_bsr"))}</td>'
+                 f'<td>{esc(m.get("reader_complaints"))}{f"<br><span class=muted>Comps: {comps}</span>" if comps else ""}</td></tr>')
+    return ('<table class="market"><tr><th>Topic</th><th>Best rank</th><th>What readers say is missing</th></tr>'
+            + rows + "</table>")
+
+
+# Word caps that keep the email skimmable. render.py warns (stderr) when a
+# field runs over, so the agent can trim before sending.
+WORD_LIMITS = {
+    "summary": 45, "recommendation.one_line": 30, "recommendation.scorecard.note": 20,
+    "recommendation.validation_piece": 40, "recommendation.next_steps": 18,
+    "top_3_picks.pitch": 30, "trends.description": 45, "book_concepts.core_promise": 30,
+    "book_concepts.market_gap": 35, "angles.description": 40, "table_of_contents.description": 20,
+    "stakeholders.why_they_know": 25, "amazon_market.reader_complaints": 25,
+}
+
+
+def lint(brief):
+    def words(x):
+        return len(str(x or "").split())
+    warnings = []
+    def check(label, text):
+        lim = WORD_LIMITS[label]
+        if words(text) > lim:
+            warnings.append(f"{label}: {words(text)} words (limit {lim}) — '{str(text)[:60]}...'")
+    check("summary", brief.get("summary"))
+    rec = brief.get("recommendation") or {}
+    check("recommendation.one_line", rec.get("one_line"))
+    check("recommendation.validation_piece", rec.get("validation_piece"))
+    for f in rec.get("scorecard") or []:
+        check("recommendation.scorecard.note", f.get("note"))
+    for x in rec.get("next_steps") or []:
+        check("recommendation.next_steps", x)
+    for key, field in [("top_3_picks", "pitch"), ("trends", "description"), ("book_concepts", "core_promise"),
+                       ("book_concepts", "market_gap"), ("angles", "description"),
+                       ("table_of_contents", "description"), ("stakeholders", "why_they_know"),
+                       ("amazon_market", "reader_complaints")]:
+        for item in brief.get(key) or []:
+            check(f"{key}.{field}", item.get(field))
+    if len(brief.get("stakeholders") or []) > 6:
+        warnings.append("stakeholders: more than 6 entries — keep the strongest 6")
+    if len(brief.get("platform_findings") or []) > 3:
+        warnings.append("platform_findings: more than 3 entries — keep the 3 most useful")
+    return warnings
+
+
 def render_platform_finding(p):
     return f"""
     <div class="card platform-card">
@@ -214,6 +268,13 @@ table.scorecard td { border-top:1px solid #eee3d3; padding:.45rem .4rem; vertica
 .market-card { border-left:4px solid #c08a1e; }
 .comps { font-size:.85rem; padding-left:1.1rem; margin:.4rem 0 0; }
 .comps a { color:#b5651d; }
+.also { padding-left:1.1rem; font-size:.95rem; line-height:1.5; }
+.also li { margin-bottom:.4rem; }
+.divider { margin:2.5rem 0 1.5rem; padding:.8rem 1rem; border-top:3px double #c9bfa9; color:#847a6a; font-size:.85rem; text-align:center; font-style:italic; }
+table.market { width:100%; border-collapse:collapse; background:#fff; font-size:.85rem; }
+table.market th { text-align:left; color:#8a7f6e; font-weight:normal; font-size:.75rem; text-transform:uppercase; padding:.4rem; border-bottom:1px solid #ddd7c9; }
+table.market td { border-bottom:1px solid #eee3d3; padding:.5rem .4rem; vertical-align:top; }
+table.market a { color:#b5651d; }
 """
 
 
@@ -239,7 +300,7 @@ def render_html(brief):
     <section>
       <h2>Amazon Market Check</h2>
       <p class="muted">Best Seller Rank is Amazon's sales rank (lower sells more): under ~20,000 is roughly 10+ copies a day, over ~300,000 rarely sells.</p>
-      {"".join(render_market(m) for m in market)}
+      {render_market_table(market)}
     </section>"""
     # brief["repeat_check"] / history bookkeeping is deliberately NOT rendered:
     # the novelty check is internal (ledger.py), not something the reader needs.
@@ -253,13 +314,16 @@ def render_html(brief):
       {"".join(render_stakeholder(s) for s in stakeholders)}
     </section>"""
 
+    rec_title = ((brief.get("recommendation") or {}).get("title") or "").strip().lower()
+    others = [p for p in picks if (p.get("title") or "").strip().lower() != rec_title][:2]
     picks_section = ""
-    if picks:
+    if others:
+        items = "".join(
+            f'<li><strong>{esc(p.get("title"))}</strong> — {esc(p.get("pitch"))}</li>' for p in others)
         picks_section = f"""
     <section>
-      <h2>Proposal: Top 3 Picks</h2>
-      <p class="muted">Plain-language summary of the strongest options from the 5 book concepts below — read this section first.</p>
-      {"".join(render_pick(i + 1, p) for i, p in enumerate(picks))}
+      <h2>Also Worth a Look</h2>
+      <ul class="also">{items}</ul>
     </section>"""
 
     platforms_section = ""
@@ -286,16 +350,18 @@ def render_html(brief):
     {f'<div class="summary">{esc(summary)}</div>' if summary else ''}
     {recommendation_section}
     {picks_section}
-    {market_section}
 
-    <section>
-      <h2>5 High-Demand Trends</h2>
-      {"".join(render_trend(i + 1, t) for i, t in enumerate(trends))}
-    </section>
+    <div class="divider">Full research below — reference material, read only what you need.</div>
+    {market_section}
 
     <section>
       <h2>5 Book Concepts</h2>
       {"".join(render_concept(i + 1, c) for i, c in enumerate(concepts))}
+    </section>
+
+    <section>
+      <h2>5 High-Demand Trends</h2>
+      {"".join(render_trend(i + 1, t) for i, t in enumerate(trends))}
     </section>
 
     <section>
@@ -344,6 +410,8 @@ def main(argv=None):
     brief = json.loads(brief_path.read_text(encoding="utf-8"))
 
     output_path = Path(args.output) if args.output else brief_path.parent / "report.html"
+    for w in lint(brief):
+        print(f"LENGTH WARNING: {w}", file=sys.stderr)
     output_path.write_text(render_html(brief), encoding="utf-8")
     print(str(output_path))
     return 0
